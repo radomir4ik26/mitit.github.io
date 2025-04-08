@@ -2,7 +2,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppI
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 import json
 
-TOKEN = 'YOUR_BOT_TOKEN'
+TOKEN = '7996923376:AAFB5dKxz5Wyfybvtny4vcChZcnJ6SGV50Q'
 balances = {} # Зберігаємо баланси користувачів
 
 def web_app_data(update: Update, context: CallbackContext) -> None:
@@ -19,7 +19,7 @@ def web_app_data(update: Update, context: CallbackContext) -> None:
         print("Отримано некоректні дані від веб-аплікації:", data)
 
 def start(update: Update, context: CallbackContext) -> None:
-    web_app_url = "https://<твоя_назва_користувача>.github.io/<назва_твого_репозиторію>/" # Заміни на свій URL
+    web_app_url = "https://radomir4ik26.github.io/mitit.github.io/" # Заміни на свій URL
     web_app_info = WebAppInfo(url=web_app_url)
     keyboard = [[InlineKeyboardButton("Відкрити гру", web_app=web_app_info)]]
     reply_markup = InlineKeyboardMarkup(keyboard)
