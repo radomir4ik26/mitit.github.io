@@ -2,7 +2,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppI
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 import json
 
-TOKEN = '7996923376:AAFB5dKxz5Wyfybvtny4vcChZcnJ6SGV50Q'
+TOKEN = "7996923376:AAFB5dKxz5Wyfybvtny4vcChZcnJ6SGV50Q"
 balances = {} # Зберігаємо баланси користувачів
 
 def web_app_data(update: Update, context: CallbackContext) -> None:
