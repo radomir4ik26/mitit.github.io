@@ -72,8 +72,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const upgradeEnergyButton = document.getElementById('upgrade-energy-button');
     const closeUpgradeButton = document.getElementById('close-upgrade-button');
 
-    function updateEnergyDisplay() {
-        energyDisplay.textContent = `Енергія: ${Math.floor(currentEnergy)}`;
+    function startGame() {
+        // Завантаження збереженого прогресу (включаючи рівні прокачки)
+        const savedScore = localStorage.getItem('tapka_score');
+        score = savedScore ? parseInt(savedScore) : 0;
+        scoreDisplay.textContent = score;
+        coinLevel = parseInt(localStorage.getItem('coinLevel')) || 1;
+        energyLevel = parseInt(localStorage.getItem('energyLevel')) || 1;
+        upgradePoints = parseInt(localStorage.getItem('upgradePoints')) || 0;
+        clickValue = baseClickValue * coinLevel;
+        maxEnergy = 50 + (energyLevel - 1) * 10;
+        energyRegenRate = 0.5 + (energyLevel - 1) * 0.1;
+        updateEnergyDisplay();
+
+        gameActive = true;
+        startEnergyRegen();
     }
 
     function startEnergyRegen() {
@@ -88,6 +101,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function stopEnergyRegen() {
         clearInterval(energyTimer);
+    }
+
+    function updateEnergyDisplay() {
+        energyDisplay.textContent = `Енергія: ${Math.floor(currentEnergy)}`;
     }
 
     function updateUpgradeUI() {
