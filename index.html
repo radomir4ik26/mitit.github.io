@@ -7,6 +7,37 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js";
+        import { getDatabase, ref } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+            apiKey: "AIzaSyAxvZxEbbgMIdwAm6lynoQa5m0pV6vpX_c",
+            authDomain: "mitit-coin-global-ranking.firebaseapp.com",
+            databaseURL: "https://mitit-coin-global-ranking-default-rtdb.firebaseio.com",
+            projectId: "mitit-coin-global-ranking",
+            storageBucket: "mitit-coin-global-ranking.firebasestorage.app",
+            messagingSenderId: "712245142885",
+            appId: "1:712245142885:web:1427a05bc4a9b80e48ed8c",
+            measurementId: "G-8YW35CS29H"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const database = getDatabase(app);
+        const leaderboardRef = ref(database, 'leaderboard');
+
+        // Зробіть database та leaderboardRef доступними глобально
+        window.firebaseDatabase = database;
+        window.firebaseLeaderboardRef = leaderboardRef;
+    </script>
 </head>
 <body>
     <div class="container">
@@ -15,6 +46,7 @@
                 <div class="score-icon"></div>
                 <span id="score">0</span>
             </div>
+            <div class="energy-display">Енергія: 50</div>
         </div>
 
         <div class="main-area">
@@ -25,11 +57,12 @@
 
         <div class="footer">
             <button class="bottom-button" id="startButton">Старт</button>
+            <button class="bottom-button" id="upgradeButton">Прокачка</button>
             <button class="bottom-button" id="leaderboardButton">Рейтинг</button>
         </div>
     </div>
 
-    <div class="end-screen" id="endScreen">
+    <div class="end-screen" id="endScreen" style="display: none;">
         <div class="end-screen-content">
             <h2>Гра завершена!</h2>
             <p>Ви набрали: <span id="finalScore">0</span> тапок</p>
@@ -57,34 +90,6 @@
         <ol id="leaderboard-list"></ol>
         <button id="close-leaderboard-button" class="bottom-button">Назад</button>
     </div>
-
-    <script type="module">
-        // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js";
-        import { getDatabase, ref, push, get, child, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
-        // TODO: Add SDKs for Firebase products that you want to use
-        // https://firebase.google.com/docs/web/setup#available-libraries
-
-        // Your web app's Firebase configuration
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-        const firebaseConfig = {
-            apiKey: "AIzaSyAxvZxEbbgMIdwAm6lynoQa5m0pV6vpX_c",
-            authDomain: "mitit-coin-global-ranking.firebaseapp.com",
-            databaseURL: "https://mitit-coin-global-ranking-default-rtdb.firebaseio.com",
-            projectId: "mitit-coin-global-ranking",
-            storageBucket: "mitit-coin-global-ranking.firebasestorage.app",
-            messagingSenderId: "712245142885",
-            appId: "1:712245142885:web:1427a05bc4a9b80e48ed8c",
-            measurementId: "G-8YW35CS29H"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-        const database = getDatabase(app);
-        const leaderboardRef = ref(database, 'leaderboard');
-    </script>
 
     <script src="script.js"></script>
 </body>
