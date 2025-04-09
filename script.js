@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const webApp = window.Telegram.WebApp;
     webApp.expand();
 
-    // Елементи DOM
+    // Елементи DOM (без змін)
     const coin = document.getElementById('coin');
     const scoreDisplay = document.getElementById('score');
     const comboCounter = document.getElementById('combo-counter');
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sendScoreButton = document.getElementById('sendScoreButton');
     const playAgainButton = document.getElementById('playAgainButton');
 
-    // Змінні гри
+    // Змінні гри (без змін)
     let score = 0;
     let combo = 1;
     let comboTimeout;
@@ -37,16 +37,16 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error("Елемент .header не знайдено!");
     }
 
-    // Змінні прокачки
+    // Змінні прокачки (без змін)
     let coinLevel = parseInt(localStorage.getItem('coinLevel')) || 1;
     let energyLevel = parseInt(localStorage.getItem('energyLevel')) || 1;
     let upgradePoints = parseInt(localStorage.getItem('upgradePoints')) || 0;
 
-    // Вплив рівнів на гру
+    // Вплив рівнів на гру (без змін)
     const baseClickValue = 1;
     let clickValue = baseClickValue * coinLevel;
 
-    // DOM елементи для прокачки
+    // DOM елементи для прокачки (без змін)
     const upgradeButton = document.createElement('button');
     upgradeButton.textContent = 'Прокачка';
     upgradeButton.className = 'bottom-button';
@@ -82,6 +82,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const upgradeEnergyButton = document.getElementById('upgrade-energy-button');
     const closeUpgradeButton = document.getElementById('close-upgrade-button');
 
+    function calculateOfflineEnergy() {
+        const lastEnergyUpdate = localStorage.getItem('lastEnergyUpdate');
+        if (lastEnergyUpdate) {
+            const timeDifference = Date.now() - parseInt(lastEnergyUpdate);
+            const offlineRegenAmount = (timeDifference / 1000) * energyRegenRate;
+            currentEnergy = Math.min(maxEnergy, currentEnergy + offlineRegenAmount);
+            localStorage.setItem('currentEnergy', currentEnergy.toString());
+        }
+    }
+
     function startGame() {
         // Завантаження збереженого прогресу
         const savedScore = localStorage.getItem('tapka_score');
@@ -93,6 +103,10 @@ document.addEventListener('DOMContentLoaded', () => {
         clickValue = baseClickValue * coinLevel;
         maxEnergy = 50 + (energyLevel - 1) * 10;
         energyRegenRate = 0.5 + (energyLevel - 1) * 0.1;
+        updateEnergyDisplay();
+
+        // Відновлення енергії в оффлайні при старті гри
+        calculateOfflineEnergy();
         updateEnergyDisplay();
 
         gameActive = true;
@@ -115,6 +129,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateEnergyDisplay();
                 localStorage.setItem('currentEnergy', currentEnergy.toString());
             }
+            // Оновлюємо час останнього оновлення енергії
+            localStorage.setItem('lastEnergyUpdate', Date.now().toString());
         }, 100);
     }
 
@@ -193,7 +209,6 @@ document.addEventListener('DOMContentLoaded', () => {
         endScreen.style.display = 'flex';
     }
 
-    // Додано обробник подій для кнопки "Прокачка"
     upgradeButton.addEventListener('click', () => {
         upgradeScreen.style.display = 'flex';
         updateUpgradeUI();
@@ -227,7 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Обробник для кліку по монеті
+    // Обробник для кліку по монеті (без змін)
     coin.addEventListener('click', (e) => {
         if (!gameActive || currentEnergy <= 0) {
             if (currentEnergy <= 0) {
@@ -252,7 +267,7 @@ document.addEventListener('DOMContentLoaded', () => {
         scoreDisplay.textContent = score;
         localStorage.setItem('tapka_score', score.toString());
 
-        // Отримання очок прокачки
+        // Отримання очок прокачки (без змін)
         if (score % 100 === 0 && score > 0) {
             upgradePoints++;
             updateUpgradeUI();
@@ -288,6 +303,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.removeItem('maxEnergy');
         localStorage.removeItem('currentEnergy');
         localStorage.removeItem('energyRegenRate');
+        localStorage.removeItem('lastEnergyUpdate'); // Видаляємо час останнього оновлення
         endScreen.style.display = 'none';
         startGame();
     });
