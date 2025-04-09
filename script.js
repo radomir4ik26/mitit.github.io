@@ -226,7 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Обробник для кліку по монеті
+ // Обробник для кліку по монеті
     coin.addEventListener('click', (e) => {
         if (!gameActive || currentEnergy <= 0) {
             if (currentEnergy <= 0) {
