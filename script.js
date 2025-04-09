@@ -30,7 +30,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let energyTimer;
     const energyDisplay = document.createElement('div');
     energyDisplay.className = 'energy-display';
-    document.querySelector('.header').appendChild(energyDisplay);
+    const header = document.querySelector('.header');
+    if (header) {
+        header.appendChild(energyDisplay);
+    } else {
+        console.error("Елемент .header не знайдено!");
+    }
 
     // Змінні прокачки
     let coinLevel = parseInt(localStorage.getItem('coinLevel')) || 1;
@@ -45,7 +50,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const upgradeButton = document.createElement('button');
     upgradeButton.textContent = 'Прокачка';
     upgradeButton.className = 'bottom-button';
-    document.querySelector('.footer').appendChild(upgradeButton);
+    const footer = document.querySelector('.footer');
+    if (footer) {
+        footer.appendChild(upgradeButton);
+    } else {
+        console.error("Елемент .footer не знайдено!");
+    }
 
     const upgradeScreen = document.createElement('div');
     upgradeScreen.className = 'upgrade-screen';
@@ -73,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeUpgradeButton = document.getElementById('close-upgrade-button');
 
     function startGame() {
-        // Завантаження збереженого прогресу (включаючи рівні прокачки)
+        // Завантаження збереженого прогресу
         const savedScore = localStorage.getItem('tapka_score');
         score = savedScore ? parseInt(savedScore) : 0;
         scoreDisplay.textContent = score;
@@ -87,6 +97,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         gameActive = true;
         startEnergyRegen();
+    }
+
+    function stopGame() {
+        gameActive = false;
+        stopEnergyRegen();
+    }
+
+    function updateEnergyDisplay() {
+        energyDisplay.textContent = `Енергія: ${Math.floor(currentEnergy)}`;
     }
 
     function startEnergyRegen() {
@@ -103,8 +122,52 @@ document.addEventListener('DOMContentLoaded', () => {
         clearInterval(energyTimer);
     }
 
-    function updateEnergyDisplay() {
-        energyDisplay.textContent = `Енергія: ${Math.floor(currentEnergy)}`;
+    function updateCombo() {
+        const currentTime = Date.now();
+        if (currentTime - lastTapTime < 1000) {
+            consecutiveTaps++;
+            combo = Math.min(5, Math.floor(consecutiveTaps / 3) + 1);
+            comboCounter.textContent = `x${combo}`;
+            comboCounter.style.display = 'block';
+            clearTimeout(comboTimeout);
+            comboTimeout = setTimeout(() => {
+                combo = 1;
+                consecutiveTaps = 0;
+                comboCounter.style.display = 'none';
+            }, 2000);
+        } else {
+            combo = 1;
+            consecutiveTaps = 1;
+            comboCounter.style.display = 'none';
+        }
+        lastTapTime = currentTime;
+    }
+
+    function createParticles(x, y) {
+        for (let i = 0; i < 10; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            const size = Math.random() * 15 + 5;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            particle.style.background = `rgba(255, 215, 0, ${Math.random()})`;
+            particle.style.borderRadius = '50%';
+            particle.style.left = `${x - size / 2 + (Math.random() - 0.5) * 30}px`;
+            particle.style.top = `${y - size / 2 + (Math.random() - 0.5) * 30}px`;
+            particle.style.animation = `particle ${Math.random() * 1 + 0.5}s ease-out forwards`;
+            particles.appendChild(particle);
+            setTimeout(() => particle.remove(), 1500);
+        }
+    }
+
+    function createScoreSplash(x, y, value) {
+        const splash = document.createElement('div');
+        splash.className = 'coin-splash';
+        splash.textContent = `+${value}`;
+        splash.style.left = `${x}px`;
+        splash.style.top = `${y}px`;
+        document.body.appendChild(splash);
+        setTimeout(() => splash.remove(), 1000);
     }
 
     function updateUpgradeUI() {
@@ -120,20 +183,25 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('energyLevel', energyLevel.toString());
         localStorage.setItem('upgradePoints', upgradePoints.toString());
         localStorage.setItem('maxEnergy', maxEnergy.toString());
+        localStorage.setItem('currentEnergy', currentEnergy.toString());
         localStorage.setItem('energyRegenRate', energyRegenRate.toString());
+    }
+
+    function endGame() {
+        stopGame();
+        finalScoreDisplay.textContent = score;
+        endScreen.style.display = 'flex';
     }
 
     upgradeButton.addEventListener('click', () => {
         upgradeScreen.style.display = 'flex';
         updateUpgradeUI();
-        gameActive = false; // Зупиняємо гру під час прокачки
-        stopEnergyRegen();
+        stopGame();
     });
 
     closeUpgradeButton.addEventListener('click', () => {
         upgradeScreen.style.display = 'none';
-        gameActive = true; // Відновлюємо гру
-        startEnergyRegen();
+        startGame();
     });
 
     upgradeCoinButton.addEventListener('click', () => {
@@ -152,7 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
             energyLevel++;
             maxEnergy = 50 + (energyLevel - 1) * 10;
             energyRegenRate = 0.5 + (energyLevel - 1) * 0.1;
-            updateEnergyDisplay(); // Оновлюємо відображення енергії з новими значеннями
+            updateEnergyDisplay();
             updateUpgradeUI();
             saveUpgradeState();
         }
@@ -176,15 +244,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const y = e.clientY;
 
         createParticles(x, y);
-        createScoreSplash(x, y - 20, combo * clickValue); // Застосовуємо множник від прокачки монетки
+        createScoreSplash(x, y - 20, combo * clickValue);
 
         updateCombo();
-        score += combo * clickValue; // Застосовуємо множник від прокачки монетки
+        score += combo * clickValue;
         scoreDisplay.textContent = score;
+        localStorage.setItem('tapka_score', score.toString());
 
-        localStorage.setItem('tapka_score', score.toString()); // Зберігаємо поточний рахунок
-
-        // Отримання очок прокачки (наприклад, кожні 100 очок рахунку)
+        // Отримання очок прокачки
         if (score % 100 === 0 && score > 0) {
             upgradePoints++;
             updateUpgradeUI();
@@ -199,24 +266,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Обробник для кнопки "Старт"
     startButton.addEventListener('click', () => {
         if (!gameActive) {
             startGame();
         }
     });
 
-    // Обробник для кнопки "Відправити результат"
     sendScoreButton.addEventListener('click', () => {
         console.log('Відправка результату:', score);
         webApp.sendData(JSON.stringify({ score: score }));
         sendScoreButton.style.display = 'none';
-        endGame(); // Зберігаємо прогрес перед відправкою
+        endGame();
     });
 
-    // Обробник для кнопки "Грати знову"
     playAgainButton.addEventListener('click', () => {
-        localStorage.removeItem('tapka_score'); // Очищаємо збережений прогрес
+        localStorage.removeItem('tapka_score');
         localStorage.removeItem('coinLevel');
         localStorage.removeItem('energyLevel');
         localStorage.removeItem('upgradePoints');
@@ -227,24 +291,34 @@ document.addEventListener('DOMContentLoaded', () => {
         startGame();
     });
 
-    // Обробник для кнопки "Рейтинг"
     leaderboardButton.addEventListener('click', () => {
         alert('Функція рейтингу в розробці');
     });
 
-    // Запобігання перетягуванню монети
     coin.addEventListener('dragstart', (e) => {
         e.preventDefault();
     });
 
-    // Запобігання масштабуванню на мобільних пристроях
     document.addEventListener('touchmove', (e) => {
         if (e.touches.length > 1) {
             e.preventDefault();
         }
     }, { passive: false });
 
-    // Автоматичний старт гри при відкритті
+    // Автоматичний старт гри
     startGame();
-    startEnergyRegen(); // Запускаємо відновлення енергії при завантаженні
 });
+
+// Анімація частинок (додайте цей код у свій CSS файл style.css)
+/*
+@keyframes particle {
+    0% {
+        opacity: 1;
+        transform: translate(0, 0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(Math.random() * 40 - 20 + 'px', -Math.random() * 60 - 30 + 'px') scale(Math.random() * 0.5 + 0.5);
+    }
+}
+*/
