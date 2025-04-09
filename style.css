@@ -58,7 +58,7 @@ body {
 .coin {
     width: 150px;
     height: 150px;
-    background: linear-gradient(45deg, #FFD700, #FFA500);
+    background-image: url('https://mitit.mil.gov.ua/static/media/logo.52e65ac10352dd083354.png');
     border-radius: 50%;
     box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
     display: flex;
