@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const database = getDatabase();
     const leaderboardRef = ref(database, 'leaderboard');
 
-    // Елементи DOM (без змін, крім додавання leaderboardList)
+    // Елементи DOM
     const coin = document.getElementById('coin');
     const scoreDisplay = document.getElementById('score');
     const comboCounter = document.getElementById('combo-counter');
@@ -21,13 +21,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const sendScoreButton = document.getElementById('sendScoreButton');
     const playAgainButton = document.getElementById('playAgainButton');
     const upgradeButton = document.createElement('button');
-    const upgradeScreen = document.createElement('div');
+    const upgradeScreen = document.getElementById('upgradeScreen'); // Отримання існуючого елемента
     const energyDisplay = document.createElement('div');
-    const leaderboardScreen = document.getElementById('leaderboardScreen'); // Отримання існуючого елемента
-    const leaderboardList = document.getElementById('leaderboard-list'); // Отримання списку для рейтингу
+    const leaderboardScreen = document.getElementById('leaderboardScreen');
+    const leaderboardList = document.getElementById('leaderboard-list');
     const closeLeaderboardButton = document.getElementById('close-leaderboard-button');
+    const upgradePointsDisplay = document.getElementById('upgrade-points-display');
+    const coinLevelDisplay = document.getElementById('coin-level-display');
+    const energyLevelDisplay = document.getElementById('energy-level-display');
+    const upgradeCoinButton = document.getElementById('upgrade-coin-button');
+    const upgradeEnergyButton = document.getElementById('upgrade-energy-button');
+    const closeUpgradeButton = document.getElementById('close-upgrade-button');
 
-    // Змінні гри (без змін)
+    // Змінні гри
     let score = 0;
     let combo = 1;
     let comboTimeout;
@@ -35,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let lastTapTime = 0;
     let consecutiveTaps = 0;
 
-    // Змінні енергії (без змін)
+    // Змінні енергії
     let maxEnergy = parseInt(localStorage.getItem('maxEnergy')) || 50;
     let currentEnergy = parseInt(localStorage.getItem('currentEnergy')) || maxEnergy;
     let energyRegenRate = parseFloat(localStorage.getItem('energyRegenRate')) || 0.5;
@@ -48,48 +54,14 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error("Елемент .header не знайдено!");
     }
 
-    // Змінні прокачки (без змін)
+    // Змінні прокачки
     let coinLevel = parseInt(localStorage.getItem('coinLevel')) || 1;
     let energyLevel = parseInt(localStorage.getItem('energyLevel')) || 1;
     let upgradePoints = parseInt(localStorage.getItem('upgradePoints')) || 0;
 
-    // Вплив рівнів на гру (без змін)
+    // Вплив рівнів на гру
     const baseClickValue = 1;
     let clickValue = baseClickValue * coinLevel;
-
-    // DOM елементи для прокачки (без змін)
-    upgradeButton.textContent = 'Прокачка';
-    upgradeButton.className = 'bottom-button';
-    const footer = document.querySelector('.footer');
-    if (footer) {
-        footer.appendChild(upgradeButton);
-    } else {
-        console.error("Елемент .footer не знайдено!");
-    }
-
-    upgradeScreen.className = 'upgrade-screen';
-    upgradeScreen.style.display = 'none';
-    upgradeScreen.innerHTML = `
-        <h2>Прокачка</h2>
-        <p>Очки прокачки: <span id="upgrade-points-display">${upgradePoints}</span></p>
-        <div class="upgrade-item">
-            <span>Монетка (рівень <span id="coin-level-display">${coinLevel}</span>)</span>
-            <button id="upgrade-coin-button">Покращити (10 очок)</button>
-        </div>
-        <div class="upgrade-item">
-            <span>Енергія (рівень <span id="energy-level-display">${energyLevel}</span>)</span>
-            <button id="upgrade-energy-button">Покращити (10 очок)</button>
-        </div>
-        <button id="close-upgrade-button" class="bottom-button">Назад</button>
-    `;
-    document.body.appendChild(upgradeScreen);
-
-    const upgradePointsDisplay = document.getElementById('upgrade-points-display');
-    const coinLevelDisplay = document.getElementById('coin-level-display');
-    const energyLevelDisplay = document.getElementById('energy-level-display');
-    const upgradeCoinButton = document.getElementById('upgrade-coin-button');
-    const upgradeEnergyButton = document.getElementById('upgrade-energy-button');
-    const closeUpgradeButton = document.getElementById('close-upgrade-button');
 
     function calculateOfflineEnergy() {
         const lastEnergyUpdate = localStorage.getItem('lastEnergyUpdate');
@@ -113,6 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
         maxEnergy = 50 + (energyLevel - 1) * 10;
         energyRegenRate = 0.5 + (energyLevel - 1) * 0.1;
         updateEnergyDisplay();
+        updateUpgradeUI(); // Оновлюємо UI прокачки при старті
 
         // Відновлення енергії в оффлайні при старті гри
         calculateOfflineEnergy();
@@ -120,6 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         gameActive = true;
         startEnergyRegen();
+        coin.classList.remove('disabled'); // Переконаємося, що монетка активна
     }
 
     function stopGame() {
@@ -129,6 +103,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateEnergyDisplay() {
         energyDisplay.textContent = `Енергія: ${Math.floor(currentEnergy)}`;
+        if (currentEnergy <= 0 && gameActive) {
+            coin.classList.add('disabled');
+        } else if (currentEnergy > 0) {
+            coin.classList.remove('disabled');
+        }
     }
 
     function startEnergyRegen() {
@@ -285,11 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     coin.addEventListener('click', (e) => {
         if (!gameActive || currentEnergy <= 0) {
-            if (currentEnergy <= 0) {
-                coin.classList.add('disabled');
-                setTimeout(() => coin.classList.remove('disabled'), 500);
-            }
-            return;
+            return; // Нічого не робимо, якщо гра не активна або немає енергії
         }
 
         currentEnergy--;
