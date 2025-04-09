@@ -2,8 +2,7 @@ body {
     margin: 0;
     padding: 0;
     font-family: 'Roboto', sans-serif;
-    background: linear;
-    linear-gradient(180deg, #15141B 0%, #29283A 100%);
+    background: linear-gradient(180deg, #15141B 0%, #29283A 100%);
     color: white;
     height: 100vh;
     overflow: hidden;
@@ -27,7 +26,6 @@ body {
     align-items: center;
     width: 100%;
     padding: 15px 0;
-    position: relative; /* Для позиціонування energy-display */
 }
 
 .score {
@@ -60,19 +58,15 @@ body {
 .coin {
     width: 150px;
     height: 150px;
-    background: none; /* Видаляємо градієнтний фон */
-    background-image: url('https://www.pngmart.com/files/7/Gold-Coin-PNG-Clipart.png'); /* Вставляємо URL логотипу */
-    background-size: contain; /* Масштабуємо зображення, щоб воно повністю помістилося всередині, зберігаючи пропорції */
-    background-repeat: no-repeat; /* Забороняємо повторення зображення */
-    background-position: center; /* Центруємо зображення */
-    border-radius: 50%; /* Залишаємо заокруглення, щоб обрізати зображення по колу */
+    background: linear-gradient(45deg, #FFD700, #FFA500);
+    border-radius: 50%;
     box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: 24px;
     font-weight: bold;
-    color: transparent; /* Робимо текст "TAP" невидимим */
+    color: white;
     cursor: pointer;
     transition: transform 0.1s;
     position: relative;
@@ -202,6 +196,18 @@ body {
     width: 100%;
 }
 
+.timer {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    padding: 5px 15px;
+    border-radius: 15px;
+    font-size: 16px;
+    display: none;
+}
+
 @keyframes pulse {
     0% {
         transform: scale(1);
@@ -232,79 +238,4 @@ body {
     background: rgba(255, 215, 0, 0.7);
     border-radius: 50%;
     pointer-events: none;
-}
-
-.energy-display {
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    font-size: 16px;
-    font-weight: bold;
-    background: rgba(255, 255, 255, 0.1);
-    padding: 8px 12px;
-    border-radius: 15px;
-    z-index: 10;
-}
-
-.coin.disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.upgrade-screen {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: #1D1C25;
-    padding: 30px;
-    border-radius: 20px;
-    text-align: center;
-    z-index: 100;
-    width: 80%;
-    max-width: 300px;
-}
-
-.upgrade-screen h2 {
-    margin-top: 0;
-    font-size: 24px;
-    margin-bottom: 20px;
-}
-
-.upgrade-screen p {
-    margin-bottom: 20px;
-    font-size: 16px;
-}
-
-.upgrade-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-.upgrade-item span {
-    font-size: 16px;
-}
-
-.upgrade-item button {
-    background: linear-gradient(45deg, #007bff, #6610f2);
-    color: white;
-    padding: 8px 15px;
-    border: none;
-    border-radius: 15px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: bold;
-    outline: none;
-}
-
-.upgrade-item button:disabled {
-    background: #6c757d;
-    cursor: not-allowed;
-}
-
-#close-upgrade-button {
-    margin-top: 20px;
-    background: #dc3545;
 }
