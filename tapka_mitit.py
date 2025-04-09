@@ -3,7 +3,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppI
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, CallbackQueryHandler
 import json
 
-TOKEN = "7996923376:AAFB5dKxz5Wyfybvtny4vcChZcnJ6SGV50Q"
+TOKEN = "YOUR_BOT_TOKEN"  # Замініть на свій токен бота
 DATABASE_NAME = 'tapka_data.db'
 
 def create_connection():
