@@ -6,17 +6,25 @@ TOKEN = "7996923376:AAFB5dKxz5Wyfybvtny4vcChZcnJ6SGV50Q"
 balances = {}  # Зберігаємо баланси користувачів
 
 async def web_app_data(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Отримує дані, надіслані з веб-аплікації."""
-    data = json.loads(update.message.web_app_data.data)
-    user_id = data.get('user_id')
-    balance = data.get('balance')
-    if user_id is not None and balance is not None:
-        balances[user_id] = balance
-        await update.message.reply_text(f"Отримано оновлення балансу від веб-аплікації!\nТвій баланс: {balance}")
-        print(f"Оновлено баланс користувача {user_id}: {balance}")
-    else:
-        await update.message.reply_text("Отримано некоректні дані від веб-аплікації.")
-        print("Отримано некоректні дані від веб-аплікації:", data)
+    """Отримує дані, надіслані з веб-аплікації (фінальний рахунок)."""
+    try:
+        data = json.loads(update.message.web_app_data.data)
+        score = data.get('score')
+        user_id = update.effective_user.id
+        if user_id is not None and score is not None:
+            # Тут має бути логіка збереження рахунку в базі даних
+            # Замість простого виведення балансу
+            print(f"Отримано рахунок {score} від користувача {user_id}")
+            await update.message.reply_text(f"Твій рахунок ({score}) отримано!")
+        else:
+            await update.message.reply_text("Отримано некоректні дані від веб-аплікації.")
+            print("Отримано некоректні дані від веб-аплікації:", data)
+    except json.JSONDecodeError:
+        await update.message.reply_text("Помилка обробки даних від веб-аплікації.")
+        print("Помилка декодування JSON від веб-аплікації:", update.message.web_app_data.data)
+    except Exception as e:
+        print(f"Виникла помилка при обробці даних веб-аплікації: {e}")
+        await update.message.reply_text("Виникла невідома помилка.")
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     web_app_url = "https://radomir4ik26.github.io/mitit.github.io/"  # Заміни на свій URL
