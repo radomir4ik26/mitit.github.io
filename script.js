@@ -71,9 +71,9 @@ document.addEventListener('DOMContentLoaded', () => {
     upgradeScreen.style.display = 'none';
     upgradeScreen.innerHTML = `
         <h2>Прокачка</h2>
-        <p>Очки прокачки: <span id="upgrade-points-display"><span class="math-inline">\{upgradePoints\}</span\></p\>
-<div class\="upgrade\-item"\>
-<span\>Монетка \(рівень <span id\="coin\-level\-display"\></span>{coinLevel}</span>)</span>
+        <p>Очки прокачки: <span id="upgrade-points-display">${upgradePoints}</span></p>
+        <div class="upgrade-item">
+            <span>Монетка (рівень <span id="coin-level-display">${coinLevel}</span>)</span>
             <button id="upgrade-coin-button">Покращити (10 очок)</button>
         </div>
         <div class="upgrade-item">
@@ -165,3 +165,209 @@ document.addEventListener('DOMContentLoaded', () => {
             consecutiveTaps = 1;
             comboCounter.style.display = 'none';
         }
+        lastTapTime = currentTime;
+    }
+
+    function createParticles(x, y) {
+        for (let i = 0; i < 10; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            const size = Math.random() * 15 + 5;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            particle.style.background = `rgba(255, 215, 0, ${Math.random()})`;
+            particle.style.borderRadius = '50%';
+            particle.style.left = `${x - size / 2 + (Math.random() - 0.5) * 30}px`;
+            particle.style.top = `${y - size / 2 + (Math.random() - 0.5) * 30}px`;
+            particle.style.animation = `particle ${Math.random() * 1 + 0.5}s ease-out forwards`;
+            particles.appendChild(particle);
+            setTimeout(() => particle.remove(), 1500);
+        }
+    }
+
+    function createScoreSplash(x, y, value) {
+        const splash = document.createElement('div');
+        splash.className = 'coin-splash';
+        splash.textContent = `+${value}`;
+        splash.style.left = `${x}px`;
+        splash.style.top = `${y}px`;
+        document.body.appendChild(splash);
+        setTimeout(() => splash.remove(), 1000);
+    }
+
+    function updateUpgradeUI() {
+        upgradePointsDisplay.textContent = upgradePoints;
+        coinLevelDisplay.textContent = coinLevel;
+        energyLevelDisplay.textContent = energyLevel;
+        upgradeCoinButton.disabled = upgradePoints < 10;
+        upgradeEnergyButton.disabled = upgradePoints < 10;
+    }
+
+    function saveUpgradeState() {
+        localStorage.setItem('coinLevel', coinLevel.toString());
+        localStorage.setItem('energyLevel', energyLevel.toString());
+        localStorage.setItem('upgradePoints', upgradePoints.toString());
+        localStorage.setItem('maxEnergy', maxEnergy.toString());
+        localStorage.setItem('currentEnergy', currentEnergy.toString());
+        localStorage.setItem('energyRegenRate', energyRegenRate.toString());
+    }
+
+    function endGame() {
+        stopGame();
+        finalScoreDisplay.textContent = score;
+        endScreen.style.display = 'flex';
+        // Отримання ідентифікатора користувача (може бути анонімним або з Telegram Web App)
+        const userId = webApp.initDataUnsafe?.user?.id || 'anonymous';
+        // Збереження результату в Firebase
+        push(leaderboardRef, { userId: userId, score: score });
+    }
+
+    function displayLeaderboard(leaderboardData) {
+        leaderboardList.innerHTML = '';
+        const sortedLeaderboard = Object.entries(leaderboardData)
+            .sort(([, a], [, b]) => b.score - a.score)
+            .slice(0, 10); // Відображаємо топ 10
+
+        sortedLeaderboard.forEach(([key, data], index) => {
+            const listItem = document.createElement('li');
+            listItem.textContent = `${index + 1}. Гравець: ${data.userId}, Рахунок: ${data.score}`;
+            leaderboardList.appendChild(listItem);
+        });
+    }
+
+    function fetchLeaderboard() {
+        get(leaderboardRef)
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    displayLeaderboard(snapshot.val());
+                } else {
+                    leaderboardList.innerHTML = 'Рейтинг порожній.';
+                }
+            })
+            .catch((error) => {
+                console.error("Помилка отримання рейтингу з Firebase:", error);
+                leaderboardList.innerHTML = 'Не вдалося завантажити рейтинг.';
+            });
+    }
+
+    upgradeButton.addEventListener('click', () => {
+        upgradeScreen.style.display = 'flex';
+        updateUpgradeUI();
+        stopGame();
+    });
+
+    closeUpgradeButton.addEventListener('click', () => {
+        upgradeScreen.style.display = 'none';
+        startGame();
+    });
+
+    upgradeCoinButton.addEventListener('click', () => {
+        if (upgradePoints >= 10) {
+            upgradePoints -= 10;
+            coinLevel++;
+            clickValue = baseClickValue * coinLevel;
+            updateUpgradeUI();
+            saveUpgradeState();
+        }
+    });
+
+    upgradeEnergyButton.addEventListener('click', () => {
+        if (upgradePoints >= 10) {
+            upgradePoints -= 10;
+            energyLevel++;
+            maxEnergy = 50 + (energyLevel - 1) * 10;
+            energyRegenRate = 0.5 + (energyLevel - 1) * 0.1;
+            updateEnergyDisplay();
+            updateUpgradeUI();
+            saveUpgradeState();
+        }
+    });
+
+    coin.addEventListener('click', (e) => {
+        if (!gameActive || currentEnergy <= 0) {
+            if (currentEnergy <= 0) {
+                coin.classList.add('disabled');
+                setTimeout(() => coin.classList.remove('disabled'), 500);
+            }
+            return;
+        }
+
+        currentEnergy--;
+        updateEnergyDisplay();
+
+        const rect = coin.getBoundingClientRect();
+        const x = e.clientX;
+        const y = e.clientY;
+
+        createParticles(x, y);
+        createScoreSplash(x, y - 20, combo * clickValue);
+
+        updateCombo();
+        score += combo * clickValue;
+        scoreDisplay.textContent = score;
+        localStorage.setItem('tapka_score', score.toString());
+
+        if (score % 100 === 0 && score > 0) {
+            upgradePoints++;
+            updateUpgradeUI();
+            saveUpgradeState();
+            const splash = document.createElement('div');
+            splash.className = 'coin-splash';
+            splash.textContent = '+1 Очко!';
+            splash.style.left = `${x}px`;
+            splash.style.top = `${y - 40}px`;
+            document.body.appendChild(splash);
+            setTimeout(() => splash.remove(), 1000);
+        }
+    });
+
+    startButton.addEventListener('click', () => {
+        if (!gameActive) {
+            startGame();
+        }
+    });
+
+    sendScoreButton.addEventListener('click', () => {
+        console.log('Відправка результату:', score);
+        webApp.sendData(JSON.stringify({ score: score }));
+        sendScoreButton.style.display = 'none';
+        endGame();
+    });
+
+    playAgainButton.addEventListener('click', () => {
+        localStorage.removeItem('tapka_score');
+        localStorage.removeItem('coinLevel');
+        localStorage.removeItem('energyLevel');
+        localStorage.removeItem('upgradePoints');
+        localStorage.removeItem('maxEnergy');
+        localStorage.removeItem('currentEnergy');
+        localStorage.removeItem('energyRegenRate');
+        localStorage.removeItem('lastEnergyUpdate');
+        endScreen.style.display = 'none';
+        startGame();
+    });
+
+    leaderboardButton.addEventListener('click', () => {
+        leaderboardScreen.style.display = 'flex';
+        fetchLeaderboard();
+        stopGame();
+    });
+
+    closeLeaderboardButton.addEventListener('click', () => {
+        leaderboardScreen.style.display = 'none';
+        startGame();
+    });
+
+    coin.addEventListener('dragstart', (e) => {
+        e.preventDefault();
+    });
+
+    document.addEventListener('touchmove', (e) => {
+        if (e.touches.length > 1) {
+            e.preventDefault();
+        }
+    }, { passive: false });
+
+    // Автоматичний старт гри
+    startGame();
+});
