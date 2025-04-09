@@ -193,6 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
         endScreen.style.display = 'flex';
     }
 
+    // Додано обробник подій для кнопки "Прокачка"
     upgradeButton.addEventListener('click', () => {
         upgradeScreen.style.display = 'flex';
         updateUpgradeUI();
@@ -226,7 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
- // Обробник для кліку по монеті
+    // Обробник для кліку по монеті
     coin.addEventListener('click', (e) => {
         if (!gameActive || currentEnergy <= 0) {
             if (currentEnergy <= 0) {
@@ -308,17 +309,3 @@ document.addEventListener('DOMContentLoaded', () => {
     // Автоматичний старт гри
     startGame();
 });
-
-// Анімація частинок (додайте цей код у свій CSS файл style.css)
-/*
-@keyframes particle {
-    0% {
-        opacity: 1;
-        transform: translate(0, 0) scale(1);
-    }
-    100% {
-        opacity: 0;
-        transform: translate(Math.random() * 40 - 20 + 'px', -Math.random() * 60 - 30 + 'px') scale(Math.random() * 0.5 + 0.5);
-    }
-}
-*/
