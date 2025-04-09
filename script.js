@@ -1,13 +1,13 @@
-import { getDatabase, ref, push, get, child, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+import { push, get } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
 
 document.addEventListener('DOMContentLoaded', () => {
     // Ініціалізація Telegram Web App
     const webApp = window.Telegram.WebApp;
     webApp.expand();
 
-    // Отримання посилання на базу даних Firebase
-    const database = getDatabase();
-    const leaderboardRef = ref(database, 'leaderboard');
+    // Отримання посилання на базу даних Firebase з глобальної змінної
+    const database = window.firebaseDatabase;
+    const leaderboardRef = window.firebaseLeaderboardRef;
 
     // Елементи DOM
     const coin = document.getElementById('coin');
@@ -15,14 +15,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const comboCounter = document.getElementById('combo-counter');
     const startButton = document.getElementById('startButton');
     const leaderboardButton = document.getElementById('leaderboardButton');
+    const upgradeButton = document.getElementById('upgradeButton');
     const particles = document.getElementById('particles');
     const endScreen = document.getElementById('endScreen');
     const finalScoreDisplay = document.getElementById('finalScore');
     const sendScoreButton = document.getElementById('sendScoreButton');
     const playAgainButton = document.getElementById('playAgainButton');
-    const upgradeButton = document.createElement('button');
-    const upgradeScreen = document.getElementById('upgradeScreen'); // Отримання існуючого елемента
-    const energyDisplay = document.createElement('div');
+    const upgradeScreen = document.getElementById('upgradeScreen');
+    const energyDisplay = document.querySelector('.energy-display');
     const leaderboardScreen = document.getElementById('leaderboardScreen');
     const leaderboardList = document.getElementById('leaderboard-list');
     const closeLeaderboardButton = document.getElementById('close-leaderboard-button');
@@ -46,13 +46,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentEnergy = parseInt(localStorage.getItem('currentEnergy')) || maxEnergy;
     let energyRegenRate = parseFloat(localStorage.getItem('energyRegenRate')) || 0.5;
     let energyTimer;
-    energyDisplay.className = 'energy-display';
-    const header = document.querySelector('.header');
-    if (header) {
-        header.appendChild(energyDisplay);
-    } else {
-        console.error("Елемент .header не знайдено!");
-    }
 
     // Змінні прокачки
     let coinLevel = parseInt(localStorage.getItem('coinLevel')) || 1;
@@ -102,11 +95,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateEnergyDisplay() {
-        energyDisplay.textContent = `Енергія: ${Math.floor(currentEnergy)}`;
-        if (currentEnergy <= 0 && gameActive) {
-            coin.classList.add('disabled');
-        } else if (currentEnergy > 0) {
-            coin.classList.remove('disabled');
+        if (energyDisplay) {
+            energyDisplay.textContent = `Енергія: ${Math.floor(currentEnergy)}`;
+            if (currentEnergy <= 0 && gameActive) {
+                coin.classList.add('disabled');
+            } else if (currentEnergy > 0) {
+                coin.classList.remove('disabled');
+            }
         }
     }
 
@@ -175,11 +170,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateUpgradeUI() {
-        upgradePointsDisplay.textContent = upgradePoints;
-        coinLevelDisplay.textContent = coinLevel;
-        energyLevelDisplay.textContent = energyLevel;
-        upgradeCoinButton.disabled = upgradePoints < 10;
-        upgradeEnergyButton.disabled = upgradePoints < 10;
+        if (upgradePointsDisplay && coinLevelDisplay && energyLevelDisplay && upgradeCoinButton && upgradeEnergyButton) {
+            upgradePointsDisplay.textContent = upgradePoints;
+            coinLevelDisplay.textContent = coinLevel;
+            energyLevelDisplay.textContent = energyLevel;
+            upgradeCoinButton.disabled = upgradePoints < 10;
+            upgradeEnergyButton.disabled = upgradePoints < 10;
+        }
     }
 
     function saveUpgradeState() {
@@ -202,140 +199,176 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displayLeaderboard(leaderboardData) {
-        leaderboardList.innerHTML = '';
-        const sortedLeaderboard = Object.entries(leaderboardData)
-            .sort(([, a], [, b]) => b.score - a.score)
-            .slice(0, 10); // Відображаємо топ 10
+        if (leaderboardList) {
+            leaderboardList.innerHTML = '';
+            const sortedLeaderboard = Object.entries(leaderboardData)
+                .sort(([, a], [, b]) => b.score - a.score)
+                .slice(0, 10); // Відображаємо топ 10
 
-        sortedLeaderboard.forEach(([key, data], index) => {
-            const listItem = document.createElement('li');
-            listItem.textContent = `${index + 1}. Гравець: ${data.userId}, Рахунок: ${data.score}`;
-            leaderboardList.appendChild(listItem);
-        });
+            sortedLeaderboard.forEach(([key, data], index) => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${index + 1}. Гравець: ${data.userId}, Рахунок: ${data.score}`;
+                leaderboardList.appendChild(listItem);
+            });
+        }
     }
 
     function fetchLeaderboard() {
-        get(leaderboardRef)
-            .then((snapshot) => {
-                if (snapshot.exists()) {
-                    displayLeaderboard(snapshot.val());
-                } else {
-                    leaderboardList.innerHTML = 'Рейтинг порожній.';
-                }
-            })
-            .catch((error) => {
-                console.error("Помилка отримання рейтингу з Firebase:", error);
-                leaderboardList.innerHTML = 'Не вдалося завантажити рейтинг.';
-            });
+        if (leaderboardRef) {
+            get(leaderboardRef)
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        displayLeaderboard(snapshot.val());
+                    } else {
+                        if (leaderboardList) {
+                            leaderboardList.innerHTML = 'Рейтинг порожній.';
+                        }
+                    }
+                })
+                .catch((error) => {
+                    console.error("Помилка отримання рейтингу з Firebase:", error);
+                    if (leaderboardList) {
+                        leaderboardList.innerHTML = 'Не вдалося завантажити рейтинг.';
+                    }
+                });
+        }
     }
 
-    upgradeButton.addEventListener('click', () => {
-        upgradeScreen.style.display = 'flex';
-        updateUpgradeUI();
-        stopGame();
-    });
+    if (upgradeButton) {
+        upgradeButton.addEventListener('click', () => {
+            if (upgradeScreen) {
+                upgradeScreen.style.display = 'flex';
+                updateUpgradeUI();
+                stopGame();
+            }
+        });
+    }
 
-    closeUpgradeButton.addEventListener('click', () => {
-        upgradeScreen.style.display = 'none';
-        startGame();
-    });
+    if (closeUpgradeButton) {
+        closeUpgradeButton.addEventListener('click', () => {
+            if (upgradeScreen) {
+                upgradeScreen.style.display = 'none';
+                startGame();
+            }
+        });
+    }
 
-    upgradeCoinButton.addEventListener('click', () => {
-        if (upgradePoints >= 10) {
-            upgradePoints -= 10;
-            coinLevel++;
-            clickValue = baseClickValue * coinLevel;
-            updateUpgradeUI();
-            saveUpgradeState();
-        }
-    });
+    if (upgradeCoinButton) {
+        upgradeCoinButton.addEventListener('click', () => {
+            if (upgradePoints >= 10) {
+                upgradePoints -= 10;
+                coinLevel++;
+                clickValue = baseClickValue * coinLevel;
+                updateUpgradeUI();
+                saveUpgradeState();
+            }
+        });
+    }
 
-    upgradeEnergyButton.addEventListener('click', () => {
-        if (upgradePoints >= 10) {
-            upgradePoints -= 10;
-            energyLevel++;
-            maxEnergy = 50 + (energyLevel - 1) * 10;
-            energyRegenRate = 0.5 + (energyLevel - 1) * 0.1;
+    if (upgradeEnergyButton) {
+        upgradeEnergyButton.addEventListener('click', () => {
+            if (upgradePoints >= 10) {
+                upgradePoints -= 10;
+                energyLevel++;
+                maxEnergy = 50 + (energyLevel - 1) * 10;
+                energyRegenRate = 0.5 + (energyLevel - 1) * 0.1;
+                updateEnergyDisplay();
+                updateUpgradeUI();
+                saveUpgradeState();
+            }
+        });
+    }
+
+    if (coin) {
+        coin.addEventListener('click', (e) => {
+            if (!gameActive || currentEnergy <= 0) {
+                return; // Нічого не робимо, якщо гра не активна або немає енергії
+            }
+
+            currentEnergy--;
             updateEnergyDisplay();
-            updateUpgradeUI();
-            saveUpgradeState();
-        }
-    });
 
-    coin.addEventListener('click', (e) => {
-        if (!gameActive || currentEnergy <= 0) {
-            return; // Нічого не робимо, якщо гра не активна або немає енергії
-        }
+            const rect = coin.getBoundingClientRect();
+            const x = e.clientX;
+            const y = e.clientY;
 
-        currentEnergy--;
-        updateEnergyDisplay();
+            createParticles(x, y);
+            createScoreSplash(x, y - 20, combo * clickValue);
 
-        const rect = coin.getBoundingClientRect();
-        const x = e.clientX;
-        const y = e.clientY;
+            updateCombo();
+            score += combo * clickValue;
+            scoreDisplay.textContent = score;
+            localStorage.setItem('tapka_score', score.toString());
 
-        createParticles(x, y);
-        createScoreSplash(x, y - 20, combo * clickValue);
+            if (score % 100 === 0 && score > 0) {
+                upgradePoints++;
+                updateUpgradeUI();
+                saveUpgradeState();
+                const splash = document.createElement('div');
+                splash.className = 'coin-splash';
+                splash.textContent = '+1 Очко!';
+                splash.style.left = `${x}px`;
+                splash.style.top = `${y - 40}px`;
+                document.body.appendChild(splash);
+                setTimeout(() => splash.remove(), 1000);
+            }
+        });
 
-        updateCombo();
-        score += combo * clickValue;
-        scoreDisplay.textContent = score;
-        localStorage.setItem('tapka_score', score.toString());
+        coin.addEventListener('dragstart', (e) => {
+            e.preventDefault();
+        });
+    }
 
-        if (score % 100 === 0 && score > 0) {
-            upgradePoints++;
-            updateUpgradeUI();
-            saveUpgradeState();
-            const splash = document.createElement('div');
-            splash.className = 'coin-splash';
-            splash.textContent = '+1 Очко!';
-            splash.style.left = `${x}px`;
-            splash.style.top = `${y - 40}px`;
-            document.body.appendChild(splash);
-            setTimeout(() => splash.remove(), 1000);
-        }
-    });
+    if (startButton) {
+        startButton.addEventListener('click', () => {
+            if (!gameActive) {
+                startGame();
+            }
+        });
+    }
 
-    startButton.addEventListener('click', () => {
-        if (!gameActive) {
+    if (sendScoreButton) {
+        sendScoreButton.addEventListener('click', () => {
+            console.log('Відправка результату:', score);
+            webApp.sendData(JSON.stringify({ score: score }));
+            sendScoreButton.style.display = 'none';
+            endGame();
+        });
+    }
+
+    if (playAgainButton) {
+        playAgainButton.addEventListener('click', () => {
+            localStorage.removeItem('tapka_score');
+            localStorage.removeItem('coinLevel');
+            localStorage.removeItem('energyLevel');
+            localStorage.removeItem('upgradePoints');
+            localStorage.removeItem('maxEnergy');
+            localStorage.removeItem('currentEnergy');
+            localStorage.removeItem('energyRegenRate');
+            localStorage.removeItem('lastEnergyUpdate');
+            endScreen.style.display = 'none';
             startGame();
-        }
-    });
+        });
+    }
 
-    sendScoreButton.addEventListener('click', () => {
-        console.log('Відправка результату:', score);
-        webApp.sendData(JSON.stringify({ score: score }));
-        sendScoreButton.style.display = 'none';
-        endGame();
-    });
+    if (leaderboardButton) {
+        leaderboardButton.addEventListener('click', () => {
+            if (leaderboardScreen) {
+                leaderboardScreen.style.display = 'flex';
+                fetchLeaderboard();
+                stopGame();
+            }
+        });
+    }
 
-    playAgainButton.addEventListener('click', () => {
-        localStorage.removeItem('tapka_score');
-        localStorage.removeItem('coinLevel');
-        localStorage.removeItem('energyLevel');
-        localStorage.removeItem('upgradePoints');
-        localStorage.removeItem('maxEnergy');
-        localStorage.removeItem('currentEnergy');
-        localStorage.removeItem('energyRegenRate');
-        localStorage.removeItem('lastEnergyUpdate');
-        endScreen.style.display = 'none';
-        startGame();
-    });
-
-    leaderboardButton.addEventListener('click', () => {
-        leaderboardScreen.style.display = 'flex';
-        fetchLeaderboard();
-        stopGame();
-    });
-
-    closeLeaderboardButton.addEventListener('click', () => {
-        leaderboardScreen.style.display = 'none';
-        startGame();
-    });
-
-    coin.addEventListener('dragstart', (e) => {
-        e.preventDefault();
-    });
+    if (closeLeaderboardButton) {
+        closeLeaderboardButton.addEventListener('click', () => {
+            if (leaderboardScreen) {
+                leaderboardScreen.style.display = 'none';
+                startGame();
+            }
+        });
+    }
 
     document.addEventListener('touchmove', (e) => {
         if (e.touches.length > 1) {
