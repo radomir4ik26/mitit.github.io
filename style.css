@@ -239,3 +239,13 @@ body {
     border-radius: 50%;
     pointer-events: none;
 }
+@keyframes particle {
+    0% {
+        opacity: 1;
+        transform: translate(0, 0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(Math.random() * 40 - 20 + 'px', -Math.random() * 60 - 30 + 'px') scale(Math.random() * 0.5 + 0.5);
+    }
+}
