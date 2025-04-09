@@ -2,23 +2,43 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Тапка - Міні-гра</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NotTapka</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>Тапка</h1>
-        <p class="game-description">Натискай кнопку якомога швидше, щоб набрати більше очків за 10 секунд!</p>
-        <button id="tapButton" class="tap-button">Почати гру</button>
-        <div id="balance" class="balance">Очки: 0</div>
+        <div class="header">
+            <div class="score">
+                <div class="score-icon"></div>
+                <span id="score">0</span>
+            </div>
+        </div>
+        
+        <div class="main-area">
+            <div class="timer" id="timer">30s</div>
+            <div class="combo-counter" id="combo-counter">Combo x1</div>
+            <div class="coin" id="coin">TAP</div>
+            <div class="particles" id="particles"></div>
+        </div>
+        
+        <div class="footer">
+            <button class="bottom-button" id="startButton">Старт</button>
+            <button class="bottom-button" id="leaderboardButton">Рейтинг</button>
+        </div>
+    </div>
+
+    <div class="end-screen" id="endScreen">
+        <div class="end-screen-content">
+            <h2>Гра завершена!</h2>
+            <p>Ви набрали: <span id="finalScore">0</span> тапок</p>
+            <button id="sendScoreButton">Відправити результат</button>
+            <button id="playAgainButton">Грати знову</button>
+        </div>
     </div>
 
     <script src="script.js"></script>
-    <script>
-        // Ініціалізація Telegram Web Apps API
-        window.Telegram.WebApp.ready();
-    </script>
 </body>
 </html>
