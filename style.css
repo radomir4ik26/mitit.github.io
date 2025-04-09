@@ -26,6 +26,7 @@ body {
     align-items: center;
     width: 100%;
     padding: 15px 0;
+    position: relative; /* Для позиціонування energy-display */
 }
 
 .score {
@@ -230,4 +231,79 @@ body {
     background: rgba(255, 215, 0, 0.7);
     border-radius: 50%;
     pointer-events: none;
+}
+
+.energy-display {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    font-size: 16px;
+    font-weight: bold;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 8px 12px;
+    border-radius: 15px;
+    z-index: 10;
+}
+
+.coin.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.upgrade-screen {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #1D1C25;
+    padding: 30px;
+    border-radius: 20px;
+    text-align: center;
+    z-index: 100;
+    width: 80%;
+    max-width: 300px;
+}
+
+.upgrade-screen h2 {
+    margin-top: 0;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.upgrade-screen p {
+    margin-bottom: 20px;
+    font-size: 16px;
+}
+
+.upgrade-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.upgrade-item span {
+    font-size: 16px;
+}
+
+.upgrade-item button {
+    background: linear-gradient(45deg, #007bff, #6610f2);
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    outline: none;
+}
+
+.upgrade-item button:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+}
+
+#close-upgrade-button {
+    margin-top: 20px;
+    background: #dc3545;
 }
