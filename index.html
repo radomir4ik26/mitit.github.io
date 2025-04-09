@@ -7,8 +7,6 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 <body>
     <div class="container">
@@ -18,13 +16,13 @@
                 <span id="score">0</span>
             </div>
         </div>
-        
+
         <div class="main-area">
             <div class="combo-counter" id="combo-counter">Combo x1</div>
             <div class="coin" id="coin">TAP</div>
             <div class="particles" id="particles"></div>
         </div>
-        
+
         <div class="footer">
             <button class="bottom-button" id="startButton">Старт</button>
             <button class="bottom-button" id="leaderboardButton">Рейтинг</button>
@@ -39,6 +37,54 @@
             <button id="playAgainButton">Грати знову</button>
         </div>
     </div>
+
+    <div class="upgrade-screen" id="upgradeScreen" style="display: none;">
+        <h2>Прокачка</h2>
+        <p>Очки прокачки: <span id="upgrade-points-display">0</span></p>
+        <div class="upgrade-item">
+            <span>Монетка (рівень <span id="coin-level-display">1</span>)</span>
+            <button id="upgrade-coin-button" disabled>Покращити (10 очок)</button>
+        </div>
+        <div class="upgrade-item">
+            <span>Енергія (рівень <span id="energy-level-display">1</span>)</span>
+            <button id="upgrade-energy-button" disabled>Покращити (10 очок)</button>
+        </div>
+        <button id="close-upgrade-button" class="bottom-button">Назад</button>
+    </div>
+
+    <div class="leaderboard-screen" id="leaderboardScreen" style="display: none;">
+        <h2>Глобальний Рейтинг</h2>
+        <ol id="leaderboard-list"></ol>
+        <button id="close-leaderboard-button" class="bottom-button">Назад</button>
+    </div>
+
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js";
+        import { getDatabase, ref, push, get, child, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+            apiKey: "AIzaSyAxvZxEbbgMIdwAm6lynoQa5m0pV6vpX_c",
+            authDomain: "mitit-coin-global-ranking.firebaseapp.com",
+            databaseURL: "https://mitit-coin-global-ranking-default-rtdb.firebaseio.com",
+            projectId: "mitit-coin-global-ranking",
+            storageBucket: "mitit-coin-global-ranking.firebasestorage.app",
+            messagingSenderId: "712245142885",
+            appId: "1:712245142885:web:1427a05bc4a9b80e48ed8c",
+            measurementId: "G-8YW35CS29H"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const database = getDatabase(app);
+        const leaderboardRef = ref(database, 'leaderboard');
+    </script>
 
     <script src="script.js"></script>
 </body>
