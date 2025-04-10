@@ -13,7 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const coin = document.getElementById('coin');
     const scoreDisplay = document.getElementById('score');
     const comboCounter = document.getElementById('combo-counter');
-    const startButton = document.getElementById('startButton');
     const leaderboardButton = document.getElementById('leaderboardButton');
     const upgradeButton = document.getElementById('upgradeButton');
     const particles = document.getElementById('particles');
@@ -42,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let consecutiveTaps = 0;
 
     // Змінні енергії
-    let maxEnergy = parseInt(localStorage.getItem('maxEnergy')) || 50;
+    let maxEnergy = parseInt(localStorage.getItem('maxEnergy')) || 1000; // Збільшено до 1000
     let currentEnergy = parseInt(localStorage.getItem('currentEnergy')) || maxEnergy;
     let energyRegenRate = parseFloat(localStorage.getItem('energyRegenRate')) || 0.5;
     let energyTimer;
@@ -75,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
         energyLevel = parseInt(localStorage.getItem('energyLevel')) || 1;
         upgradePoints = parseInt(localStorage.getItem('upgradePoints')) || 0;
         clickValue = baseClickValue * coinLevel;
-        maxEnergy = 50 + (energyLevel - 1) * 10;
+        maxEnergy = 1000 + (energyLevel - 1) * 100; // Збільшено при прокачці
         energyRegenRate = 0.5 + (energyLevel - 1) * 0.1;
         updateEnergyDisplay();
         updateUpgradeUI(); // Оновлюємо UI прокачки при старті
@@ -236,81 +235,105 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (upgradeButton) {
         upgradeButton.addEventListener('click', () => {
-            if (upgradeScreen) {
-                upgradeScreen.style.display = 'flex';
-                updateUpgradeUI();
-                stopGame();
+            try {
+                console.log("Кнопка Прокачка натиснута!");
+                if (upgradeScreen) {
+                    upgradeScreen.style.display = 'flex';
+                    updateUpgradeUI();
+                    stopGame();
+                }
+            } catch (error) {
+                console.error("Помилка в обробнику upgradeButton:", error);
             }
         });
     }
 
     if (closeUpgradeButton) {
         closeUpgradeButton.addEventListener('click', () => {
-            if (upgradeScreen) {
-                upgradeScreen.style.display = 'none';
-                startGame();
+            try {
+                console.log("Кнопка Назад (Прокачка) натиснута!");
+                if (upgradeScreen) {
+                    upgradeScreen.style.display = 'none';
+                    startGame();
+                }
+            } catch (error) {
+                console.error("Помилка в обробнику closeUpgradeButton:", error);
             }
         });
     }
 
     if (upgradeCoinButton) {
         upgradeCoinButton.addEventListener('click', () => {
-            if (upgradePoints >= 10) {
-                upgradePoints -= 10;
-                coinLevel++;
-                clickValue = baseClickValue * coinLevel;
-                updateUpgradeUI();
-                saveUpgradeState();
+            try {
+                console.log("Кнопка Покращити монетку натиснута!");
+                if (upgradePoints >= 10) {
+                    upgradePoints -= 10;
+                    coinLevel++;
+                    clickValue = baseClickValue * coinLevel;
+                    updateUpgradeUI();
+                    saveUpgradeState();
+                }
+            } catch (error) {
+                console.error("Помилка в обробнику upgradeCoinButton:", error);
             }
         });
     }
 
     if (upgradeEnergyButton) {
         upgradeEnergyButton.addEventListener('click', () => {
-            if (upgradePoints >= 10) {
-                upgradePoints -= 10;
-                energyLevel++;
-                maxEnergy = 50 + (energyLevel - 1) * 10;
-                energyRegenRate = 0.5 + (energyLevel - 1) * 0.1;
-                updateEnergyDisplay();
-                updateUpgradeUI();
-                saveUpgradeState();
+            try {
+                console.log("Кнопка Покращити енергію натиснута!");
+                if (upgradePoints >= 10) {
+                    upgradePoints -= 10;
+                    energyLevel++;
+                    maxEnergy = 1000 + (energyLevel - 1) * 100; // Збільшено при прокачці
+                    energyRegenRate = 0.5 + (energyLevel - 1) * 0.1;
+                    updateEnergyDisplay();
+                    updateUpgradeUI();
+                    saveUpgradeState();
+                }
+            } catch (error) {
+                console.error("Помилка в обробнику upgradeEnergyButton:", error);
             }
         });
     }
 
     if (coin) {
         coin.addEventListener('click', (e) => {
-            if (!gameActive || currentEnergy <= 0) {
-                return; // Нічого не робимо, якщо гра не активна або немає енергії
-            }
+            try {
+                if (!gameActive || currentEnergy <= 0) {
+                    return; // Нічого не робимо, якщо гра не активна або немає енергії
+                }
 
-            currentEnergy--;
-            updateEnergyDisplay();
+                currentEnergy--;
+                updateEnergyDisplay();
 
-            const rect = coin.getBoundingClientRect();
-            const x = e.clientX;
-            const y = e.clientY;
+                const rect = coin.getBoundingClientRect();
+                const x = e.clientX;
+                const y = e.clientY;
 
-            createParticles(x, y);
-            createScoreSplash(x, y - 20, combo * clickValue);
+                createParticles(x, y);
+                createScoreSplash(x, y - 20, combo * clickValue);
 
-            updateCombo();
-            score += combo * clickValue;
-            scoreDisplay.textContent = score;
-            localStorage.setItem('tapka_score', score.toString());
+                updateCombo();
+                score += combo * clickValue;
+                scoreDisplay.textContent = score;
+                localStorage.setItem('tapka_score', score.toString());
 
-            if (score % 100 === 0 && score > 0) {
-                upgradePoints++;
-                updateUpgradeUI();
-                saveUpgradeState();
-                const splash = document.createElement('div');
-                splash.className = 'coin-splash';
-                splash.textContent = '+1 Очко!';
-                splash.style.left = `${x}px`;
-                splash.style.top = `${y - 40}px`;
-                document.body.appendChild(splash);
-                setTimeout(() => splash.remove(), 1000);
+                if (score % 100 === 0 && score > 0) {
+                    upgradePoints++;
+                    updateUpgradeUI();
+                    saveUpgradeState();
+                    const splash = document.createElement('div');
+                    splash.className = 'coin-splash';
+                    splash.textContent = '+1 Очко!';
+                    splash.style.left = `${x}px`;
+                    splash.style.top = `${y - 40}px`;
+                    document.body.appendChild(splash);
+                    setTimeout(() => splash.remove(), 1000);
+                }
+            } catch (error) {
+                console.error("Помилка в обробнику coin:", error);
             }
         });
 
@@ -319,53 +342,64 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (startButton) {
-        startButton.addEventListener('click', () => {
-            if (!gameActive) {
-                startGame();
-            }
-        });
-    }
-
     if (sendScoreButton) {
         sendScoreButton.addEventListener('click', () => {
-            console.log('Відправка результату:', score);
-            webApp.sendData(JSON.stringify({ score: score }));
-            sendScoreButton.style.display = 'none';
-            endGame();
+            try {
+                console.log('Кнопка Відправити результат натиснута:', score);
+                webApp.sendData(JSON.stringify({ score: score }));
+                sendScoreButton.style.display = 'none';
+                endGame();
+            } catch (error) {
+                console.error("Помилка в обробнику sendScoreButton:", error);
+            }
         });
     }
 
     if (playAgainButton) {
         playAgainButton.addEventListener('click', () => {
-            localStorage.removeItem('tapka_score');
-            localStorage.removeItem('coinLevel');
-            localStorage.removeItem('energyLevel');
-            localStorage.removeItem('upgradePoints');
-            localStorage.removeItem('maxEnergy');
-            localStorage.removeItem('currentEnergy');
-            localStorage.removeItem('energyRegenRate');
-            localStorage.removeItem('lastEnergyUpdate');
-            endScreen.style.display = 'none';
-            startGame();
+            try {
+                console.log("Кнопка Грати знову натиснута!");
+                localStorage.removeItem('tapka_score');
+                localStorage.removeItem('coinLevel');
+                localStorage.removeItem('energyLevel');
+                localStorage.removeItem('upgradePoints');
+                localStorage.removeItem('maxEnergy');
+                localStorage.removeItem('currentEnergy');
+                localStorage.removeItem('energyRegenRate');
+                localStorage.removeItem('lastEnergyUpdate');
+                endScreen.style.display = 'none';
+                startGame();
+            } catch (error) {
+                console.error("Помилка в обробнику playAgainButton:", error);
+            }
         });
     }
 
     if (leaderboardButton) {
         leaderboardButton.addEventListener('click', () => {
-            if (leaderboardScreen) {
-                leaderboardScreen.style.display = 'flex';
-                fetchLeaderboard();
-                stopGame();
+            try {
+                console.log("Кнопка Рейтинг натиснута!");
+                if (leaderboardScreen) {
+                    leaderboardScreen.style.display = 'flex';
+                    fetchLeaderboard();
+                    stopGame();
+                }
+            } catch (error) {
+                console.error("Помилка в обробнику leaderboardButton:", error);
             }
         });
     }
 
     if (closeLeaderboardButton) {
         closeLeaderboardButton.addEventListener('click', () => {
-            if (leaderboardScreen) {
-                leaderboardScreen.style.display = 'none';
-                startGame();
+            try {
+                console.log("Кнопка Назад (Рейтинг) натиснута!");
+                if (leaderboardScreen) {
+                    leaderboardScreen.style.display = 'none';
+                    startGame();
+                }
+            } catch (error) {
+                console.error("Помилка в обробнику closeLeaderboardButton:", error);
             }
         });
     }
@@ -376,6 +410,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }, { passive: false });
 
+    // Відновлення енергії в оффлайні при завантаженні сторінки
+    calculateOfflineEnergy();
+    updateEnergyDisplay();
+
     // Автоматичний старт гри
     startGame();
+});
+
+// Оновлення часу останнього оновлення енергії при виході зі сторінки
+window.addEventListener('beforeunload', () => {
+    localStorage.setItem('lastEnergyUpdate', Date.now().toString());
 });
