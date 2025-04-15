@@ -312,7 +312,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error("Помилка в обробнику кнопки 'Прокачка':", error);
             }
         });
-    }
 
     if (closeUpgradeButtonElement) {
         closeUpgradeButtonElement.addEventListener('click', () => {
@@ -367,11 +366,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (coinElement) {
-        coinElement.addEventListener('click', (event) => {
-            try {
-                if (!isGameActive || currentEnergyLevel <= 0) {
-                    return;
-                }
+        coinElement.addEventListener('dragstart', (e) => {
+            e.preventDefault();
+        });
+    }
 
                 currentEnergyLevel--;
                 updateEnergyDisplayUI();
