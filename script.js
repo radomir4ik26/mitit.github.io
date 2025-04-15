@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const comboCounterElement = document.getElementById('combo-counter');
     const leaderboardButtonElement = document.getElementById('leaderboardButton');
     const upgradeButtonElement = document.getElementById('upgradeButton');
+    const tasksButtonElement = document.getElementById('tasksButton');
     const particlesElement = document.getElementById('particles');
     const endScreenElement = document.getElementById('endScreen');
     const finalScoreDisplayElement = document.getElementById('finalScore');
@@ -37,6 +38,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeUpgradeButtonElement = document.getElementById('close-upgrade-button');
     const upgradeCoinCostElement = document.getElementById('upgrade-coin-cost');
     const upgradeEnergyCostElement = document.getElementById('upgrade-energy-cost');
+    const tasksScreenElement = document.getElementById('tasksScreen');
+    const closeTasksButtonElement = document.getElementById('close-tasks-button');
+    const subscribeTaskButtonElement = document.getElementById('subscribe-task-button');
     console.log("DOM елементи отримано.");
 
     // Змінні гри
@@ -56,7 +60,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // Змінні прокачки
     let currentCoinLevel = parseInt(localStorage.getItem('currentCoinLevel')) || 1;
     let currentEnergyLevelLevel = parseInt(localStorage.getItem('currentEnergyLevelLevel')) || 1;
-    const upgradeCost = 1000; // Вартість одного рівня прокачки
+    
+    // Нова логіка для збільшення вартості прокачки
+    const calculateUpgradeCost = (level) => {
+        return Math.floor(1000 * Math.pow(1.5, level - 1));
+    };
+    
+    // Вартість прокачки для кожного з параметрів
+    let coinUpgradeCost = calculateUpgradeCost(currentCoinLevel);
+    let energyUpgradeCost = calculateUpgradeCost(currentEnergyLevelLevel);
+
+    // Статус завдань
+    let isSubscribeTaskCompleted = localStorage.getItem('isSubscribeTaskCompleted') === 'true';
 
     // Вплив рівнів на гру
     const baseTapValue = 1;
@@ -85,9 +100,12 @@ document.addEventListener('DOMContentLoaded', () => {
             scoreDisplayElement.textContent = currentScore;
             currentCoinLevel = parseInt(localStorage.getItem('currentCoinLevel')) || 1;
             currentEnergyLevelLevel = parseInt(localStorage.getItem('currentEnergyLevelLevel')) || 1;
+            coinUpgradeCost = calculateUpgradeCost(currentCoinLevel);
+            energyUpgradeCost = calculateUpgradeCost(currentEnergyLevelLevel);
             tapValue = baseTapValue * currentCoinLevel;
             maximumEnergy = 1000 + (currentEnergyLevelLevel - 1) * 100;
             energyRegenerationRate = 0.5 + (currentEnergyLevelLevel - 1) * 0.1;
+            isSubscribeTaskCompleted = localStorage.getItem('isSubscribeTaskCompleted') === 'true';
             updateEnergyDisplayUI();
             updateUpgradeScreenUI();
             calculateOfflineEnergyRegen();
@@ -218,13 +236,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 upgradePointsDisplayElement.textContent = currentScore; // Показуємо поточні монети
                 coinLevelDisplayElement.textContent = currentCoinLevel;
                 energyLevelDisplayElement.textContent = currentEnergyLevelLevel;
-                upgradeCoinCostElement.textContent = upgradeCost;
-                upgradeEnergyCostElement.textContent = upgradeCost;
-                upgradeCoinButtonElement.disabled = currentScore < upgradeCost;
-                upgradeEnergyButtonElement.disabled = currentScore < upgradeCost;
+                upgradeCoinCostElement.textContent = coinUpgradeCost;
+                upgradeEnergyCostElement.textContent = energyUpgradeCost;
+                upgradeCoinButtonElement.disabled = currentScore < coinUpgradeCost;
+                upgradeEnergyButtonElement.disabled = currentScore < energyUpgradeCost;
             }
         } catch (error) {
             console.error("Помилка при оновленні UI екрану прокачки:", error);
+        }
+    }
+
+    function updateTasksScreenUI() {
+        try {
+            if (subscribeTaskButtonElement) {
+                if (isSubscribeTaskCompleted) {
+                    subscribeTaskButtonElement.disabled = true;
+                    subscribeTaskButtonElement.textContent = "Виконано";
+                } else {
+                    subscribeTaskButtonElement.disabled = false;
+                    subscribeTaskButtonElement.textContent = "Підписатись (+100,000 монет)";
+                }
+            }
+        } catch (error) {
+            console.error("Помилка при оновленні UI екрану завдань:", error);
         }
     }
 
@@ -236,6 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('currentEnergyLevel', currentEnergyLevel.toString());
             localStorage.setItem('energyRegenerationRate', energyRegenerationRate.toString());
             localStorage.setItem('tapka_score', currentScore.toString());
+            localStorage.setItem('isSubscribeTaskCompleted', isSubscribeTaskCompleted.toString());
             console.log("Стан гри збережено.");
         } catch (error) {
             console.error("Помилка при збереженні стану гри:", error);
@@ -299,6 +334,33 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Функція для відкриття посилання на Telegram
+    function openTelegramChannel() {
+        try {
+            window.open('https://t.me/mititcoin', '_blank');
+            isSubscribeTaskCompleted = true;
+            currentScore += 100000; // Додаємо 100к монет за підписку
+            scoreDisplayElement.textContent = currentScore;
+            saveGameState();
+            updateTasksScreenUI();
+            
+            // Показуємо повідомлення про нагороду
+            const rewardMessage = document.createElement('div');
+            rewardMessage.className = 'reward-message';
+            rewardMessage.textContent = '+100,000 монет!';
+            document.body.appendChild(rewardMessage);
+            
+            // Видаляємо повідомлення після показу
+            setTimeout(() => {
+                rewardMessage.remove();
+            }, 3000);
+            
+            console.log("Завдання на підписку виконано, додано 100000 монет");
+        } catch (error) {
+            console.error("Помилка при відкритті каналу Telegram:", error);
+        }
+    }
+
     if (upgradeButtonElement) {
         upgradeButtonElement.addEventListener('click', () => {
             try {
@@ -328,13 +390,56 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    if (tasksButtonElement) {
+        tasksButtonElement.addEventListener('click', () => {
+            try {
+                console.log("Натиснуто кнопку 'Завдання'.");
+                if (tasksScreenElement) {
+                    tasksScreenElement.style.display = 'flex';
+                    updateTasksScreenUI();
+                    stopGamePlay();
+                }
+            } catch (error) {
+                console.error("Помилка в обробнику кнопки 'Завдання':", error);
+            }
+        });
+    }
+
+    if (closeTasksButtonElement) {
+        closeTasksButtonElement.addEventListener('click', () => {
+            try {
+                console.log("Натиснуто кнопку 'Назад' на екрані завдань.");
+                if (tasksScreenElement) {
+                    tasksScreenElement.style.display = 'none';
+                    initializeGame();
+                }
+            } catch (error) {
+                console.error("Помилка в обробнику кнопки 'Назад' на екрані завдань:", error);
+            }
+        });
+    }
+
+    if (subscribeTaskButtonElement) {
+        subscribeTaskButtonElement.addEventListener('click', () => {
+            try {
+                console.log("Натиснуто кнопку 'Підписатись'.");
+                if (!isSubscribeTaskCompleted) {
+                    openTelegramChannel();
+                }
+            } catch (error) {
+                console.error("Помилка в обробнику кнопки 'Підписатись':", error);
+            }
+        });
+    }
+
     if (upgradeCoinButtonElement) {
         upgradeCoinButtonElement.addEventListener('click', () => {
             try {
                 console.log("Натиснуто кнопку 'Покращити монетку'.");
-                if (currentScore >= upgradeCost) {
-                    currentScore -= upgradeCost;
+                if (currentScore >= coinUpgradeCost) {
+                    currentScore -= coinUpgradeCost;
                     currentCoinLevel++;
+                    coinUpgradeCost = calculateUpgradeCost(currentCoinLevel);
                     tapValue = baseTapValue * currentCoinLevel;
                     updateUpgradeScreenUI();
                     saveGameState();
@@ -350,9 +455,10 @@ document.addEventListener('DOMContentLoaded', () => {
         upgradeEnergyButtonElement.addEventListener('click', () => {
             try {
                 console.log("Натиснуто кнопку 'Покращити енергію'.");
-                if (currentScore >= upgradeCost) {
-                    currentScore -= upgradeCost;
+                if (currentScore >= energyUpgradeCost) {
+                    currentScore -= energyUpgradeCost;
                     currentEnergyLevelLevel++;
+                    energyUpgradeCost = calculateUpgradeCost(currentEnergyLevelLevel);
                     maximumEnergy = 1000 + (currentEnergyLevelLevel - 1) * 100;
                     energyRegenerationRate = 0.5 + (currentEnergyLevelLevel - 1) * 0.1;
                     updateEnergyDisplayUI();
@@ -423,6 +529,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.removeItem('currentEnergyLevel');
                 localStorage.removeItem('energyRegenerationRate');
                 localStorage.removeItem('lastEnergyUpdateTimestamp');
+                localStorage.removeItem('isSubscribeTaskCompleted');
                 endScreenElement.style.display = 'none';
                 initializeGame();
             } catch (error) {
@@ -478,6 +585,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('maximumEnergy', maximumEnergy.toString());
         localStorage.setItem('currentEnergyLevel', currentEnergyLevel.toString());
         localStorage.setItem('energyRegenerationRate', energyRegenerationRate.toString());
+        localStorage.setItem('isSubscribeTaskCompleted', isSubscribeTaskCompleted.toString());
         console.log("Стан гри збережено перед виходом.");
     });
 });
