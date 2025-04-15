@@ -312,6 +312,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error("Помилка в обробнику кнопки 'Прокачка':", error);
             }
         });
+    }
 
     if (closeUpgradeButtonElement) {
         closeUpgradeButtonElement.addEventListener('click', () => {
@@ -366,10 +367,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (coinElement) {
-        coinElement.addEventListener('dragstart', (e) => {
-            e.preventDefault();
-        });
-    }
+        coinElement.addEventListener('click', (event) => {
+            try {
+                if (!isGameActive || currentEnergyLevel <= 0) {
+                    return;
+                }
 
                 currentEnergyLevel--;
                 updateEnergyDisplayUI();
@@ -389,6 +391,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error("Помилка в обробнику кліку по монетці:", error);
             }
         });
+    }
+
+    if (coinElement) {
+        coinElement.addEventListener('dragstart', (e) => {
+            e.preventDefault();
         });
     }
 
@@ -474,6 +481,3 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("Стан гри збережено перед виходом.");
     });
 });
-
-        coinElement.addEventListener('dragstart', (e) => {
-            e.preventDefault();
