@@ -22,7 +22,7 @@
             authDomain: "mitit-coin-global-ranking.firebaseapp.com",
             databaseURL: "https://mitit-coin-global-ranking-default-rtdb.firebaseio.com",
             projectId: "mitit-coin-global-ranking",
-            storageBucket: "mitit-coin-global-ranking.firebasestorage.app",
+            storageBucket: "mitit-coin-global-ranking.firebaseapp.com",
             messagingSenderId: "712245142885",
             appId: "1:712245142885:web:1427a05bc4a9b80e48ed8c",
             measurementId: "G-8YW35CS29H"
@@ -58,6 +58,7 @@
         <div class="footer">
             <button class="bottom-button" id="leaderboardButton">Рейтинг</button>
             <button class="bottom-button" id="upgradeButton">Прокачка</button>
+            <button class="bottom-button" id="tasksButton">Завдання</button>
         </div>
     </div>
 
@@ -76,10 +77,12 @@
         <div class="upgrade-item">
             <span>Монетка (рівень <span id="coin-level-display">1</span>)</span>
             <button id="upgrade-coin-button">Покращити (<span id="upgrade-coin-cost">1000</span> монет)</button>
+            <p class="upgrade-description">+1 монета за тап</p>
         </div>
         <div class="upgrade-item">
             <span>Енергія (рівень <span id="energy-level-display">1</span>)</span>
             <button id="upgrade-energy-button">Покращити (<span id="upgrade-energy-cost">1000</span> монет)</button>
+            <p class="upgrade-description">+500 енергії</p>
         </div>
         <button id="close-upgrade-button" class="bottom-button">Назад</button>
     </div>
@@ -88,6 +91,26 @@
         <h2>Глобальний Рейтинг</h2>
         <ol id="leaderboard-list"></ol>
         <button id="close-leaderboard-button" class="bottom-button">Назад</button>
+    </div>
+
+    <div class="tasks-screen" id="tasksScreen" style="display: none;">
+        <h2>Завдання</h2>
+        <div class="task-item">
+            <span class="task-title">Підписатися на Telegram канал</span>
+            <p class="task-description">Підпишіться на наш офіційний Telegram канал і отримайте 100,000 монет!</p>
+            <button id="subscribe-task-button" class="task-button">Підписатися</button>
+        </div>
+        <div class="task-item">
+            <span class="task-title">Запросити друга</span>
+            <p class="task-description">Запросіть друга і отримайте 50,000 монет!</p>
+            <button id="invite-friend-button" class="task-button">Запросити</button>
+        </div>
+        <div class="task-item">
+            <span class="task-title">Щоденний бонус</span>
+            <p class="task-description">Заходьте щодня і отримуйте 10,000 монет!</p>
+            <button id="daily-bonus-button" class="task-button">Отримати</button>
+        </div>
+        <button id="close-tasks-button" class="bottom-button">Назад</button>
     </div>
 
     <script type="module" src="script.js"></script>
