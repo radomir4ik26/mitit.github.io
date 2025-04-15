@@ -19,7 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const comboCounterElement = document.getElementById('combo-counter');
     const leaderboardButtonElement = document.getElementById('leaderboardButton');
     const upgradeButtonElement = document.getElementById('upgradeButton');
-    const tasksButtonElement = document.getElementById('tasksButton');
     const particlesElement = document.getElementById('particles');
     const endScreenElement = document.getElementById('endScreen');
     const finalScoreDisplayElement = document.getElementById('finalScore');
@@ -38,11 +37,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeUpgradeButtonElement = document.getElementById('close-upgrade-button');
     const upgradeCoinCostElement = document.getElementById('upgrade-coin-cost');
     const upgradeEnergyCostElement = document.getElementById('upgrade-energy-cost');
-    const tasksScreenElement = document.getElementById('tasksScreen');
-    const closeTasksButtonElement = document.getElementById('close-tasks-button');
-    const subscribeTaskButtonElement = document.getElementById('subscribe-task-button');
-    const watchAdTaskButtonElement = document.getElementById('watch-ad-task-button');
-    const inviteFriendTaskButtonElement = document.getElementById('invite-friend-task-button');
     console.log("DOM елементи отримано.");
 
     // Змінні гри
@@ -52,7 +46,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let isGameActive = false;
     let lastTapTimeMs = 0;
     let tapCount = 0;
-    let activeTouchCount = 0;
 
     // Змінні енергії
     let maximumEnergy = parseInt(localStorage.getItem('maximumEnergy')) || 1000;
@@ -63,20 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Змінні прокачки
     let currentCoinLevel = parseInt(localStorage.getItem('currentCoinLevel')) || 1;
     let currentEnergyLevelLevel = parseInt(localStorage.getItem('currentEnergyLevelLevel')) || 1;
-
-    // Нова логіка для збільшення вартості прокачки
-    const calculateUpgradeCost = (level) => {
-        return Math.floor(1000 * Math.pow(1.5, level - 1));
-    };
-
-    // Вартість прокачки для кожного з параметрів
-    let coinUpgradeCost = calculateUpgradeCost(currentCoinLevel);
-    let energyUpgradeCost = calculateUpgradeCost(currentEnergyLevelLevel);
-
-    // Статус завдань
-    let isSubscribeTaskCompleted = localStorage.getItem('isSubscribeTaskCompleted') === 'true';
-    let isWatchAdTaskCompleted = localStorage.getItem('isWatchAdTaskCompleted') === 'true';
-    let isInviteFriendTaskCompleted = localStorage.getItem('isInviteFriendTaskCompleted') === 'true';
+    const upgradeCost = 1000; // Вартість одного рівня прокачки
 
     // Вплив рівнів на гру
     const baseTapValue = 1;
@@ -105,17 +85,11 @@ document.addEventListener('DOMContentLoaded', () => {
             scoreDisplayElement.textContent = currentScore;
             currentCoinLevel = parseInt(localStorage.getItem('currentCoinLevel')) || 1;
             currentEnergyLevelLevel = parseInt(localStorage.getItem('currentEnergyLevelLevel')) || 1;
-            coinUpgradeCost = calculateUpgradeCost(currentCoinLevel);
-            energyUpgradeCost = calculateUpgradeCost(currentEnergyLevelLevel);
             tapValue = baseTapValue * currentCoinLevel;
             maximumEnergy = 1000 + (currentEnergyLevelLevel - 1) * 100;
             energyRegenerationRate = 0.5 + (currentEnergyLevelLevel - 1) * 0.1;
-            isSubscribeTaskCompleted = localStorage.getItem('isSubscribeTaskCompleted') === 'true';
-            isWatchAdTaskCompleted = localStorage.getItem('isWatchAdTaskCompleted') === 'true';
-            isInviteFriendTaskCompleted = localStorage.getItem('isInviteFriendTaskCompleted') === 'true';
             updateEnergyDisplayUI();
             updateUpgradeScreenUI();
-            updateTasksScreenUI();
             calculateOfflineEnergyRegen();
             updateEnergyDisplayUI();
             isGameActive = true;
@@ -182,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const currentTime = Date.now();
             if (currentTime - lastTapTimeMs < 1000) {
-                tapCount += activeTouchCount; // Збільшуємо комбо на кількість одночасних дотиків
+                tapCount++;
                 currentCombo = Math.min(5, Math.floor(tapCount / 3) + 1);
                 comboCounterElement.textContent = `x${currentCombo}`;
                 comboCounterElement.style.display = 'block';
@@ -194,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, 2000);
             } else {
                 currentCombo = 1;
-                tapCount = activeTouchCount; // Починаємо новий комбо з кількості дотиків
+                tapCount = 1;
                 comboCounterElement.style.display = 'none';
             }
             lastTapTimeMs = currentTime;
@@ -244,30 +218,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 upgradePointsDisplayElement.textContent = currentScore; // Показуємо поточні монети
                 coinLevelDisplayElement.textContent = currentCoinLevel;
                 energyLevelDisplayElement.textContent = currentEnergyLevelLevel;
-                upgradeCoinCostElement.textContent = coinUpgradeCost;
-                upgradeEnergyCostElement.textContent = energyUpgradeCost;
-                upgradeCoinButtonElement.disabled = currentScore < coinUpgradeCost;
-                upgradeEnergyButtonElement.disabled = currentScore < energyUpgradeCost;
+                upgradeCoinCostElement.textContent = upgradeCost;
+                upgradeEnergyCostElement.textContent = upgradeCost;
+                upgradeCoinButtonElement.disabled = currentScore < upgradeCost;
+                upgradeEnergyButtonElement.disabled = currentScore < upgradeCost;
             }
         } catch (error) {
             console.error("Помилка при оновленні UI екрану прокачки:", error);
-        }
-    }
-
-    function updateTasksScreenUI() {
-        try {
-            if (subscribeTaskButtonElement && watchAdTaskButtonElement && inviteFriendTaskButtonElement) {
-                subscribeTaskButtonElement.disabled = isSubscribeTaskCompleted;
-                subscribeTaskButtonElement.textContent = isSubscribeTaskCompleted ? "Підписано" : "Підписатись (+100,000 монет)";
-
-                watchAdTaskButtonElement.disabled = isWatchAdTaskCompleted;
-                watchAdTaskButtonElement.textContent = isWatchAdTaskCompleted ? "Переглянуто" : "Переглянути рекламу (+50,000 монет)";
-
-                inviteFriendTaskButtonElement.disabled = isInviteFriendTaskCompleted;
-                inviteFriendTaskButtonElement.textContent = isInviteFriendTaskCompleted ? "Запрошено" : "Запросити друга (+200,000 монет)";
-            }
-        } catch (error) {
-            console.error("Помилка при оновленні UI екрану завдань:", error);
         }
     }
 
@@ -279,9 +236,6 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('currentEnergyLevel', currentEnergyLevel.toString());
             localStorage.setItem('energyRegenerationRate', energyRegenerationRate.toString());
             localStorage.setItem('tapka_score', currentScore.toString());
-            localStorage.setItem('isSubscribeTaskCompleted', isSubscribeTaskCompleted.toString());
-            localStorage.setItem('isWatchAdTaskCompleted', isWatchAdTaskCompleted.toString());
-            localStorage.setItem('isInviteFriendTaskCompleted', isInviteFriendTaskCompleted.toString());
             console.log("Стан гри збережено.");
         } catch (error) {
             console.error("Помилка при збереженні стану гри:", error);
@@ -345,18 +299,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Функція для відкриття посилання на Telegram
-    function openTelegramChannel(url) {
-        try {
-            window.open(url, '_blank');
-        } catch (error) {
-            console.error(`Помилка при відкритті посилання ${url}:`, error);
-        }
-    }
-
     if (upgradeButtonElement) {
-        upgradeButtonElement
-        addEventListener('click', () => {
+        upgradeButtonElement.addEventListener('click', () => {
             try {
                 console.log("Натиснуто кнопку 'Прокачка'.");
                 if (upgradeScreenElement) {
@@ -384,132 +328,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (tasksButtonElement) {
-        tasksButtonElement.addEventListener('click', () => {
-            try {
-                console.log("Натиснуто кнопку 'Завдання'.");
-                if (tasksScreenElement) {
-                    tasksScreenElement.style.display = 'flex';
-                    updateTasksScreenUI();
-                    stopGamePlay();
-                }
-            } catch (error) {
-                console.error("Помилка в обробнику кнопки 'Завдання':", error);
-            }
-        });
-    }
-
-    if (closeTasksButtonElement) {
-        closeTasksButtonElement.addEventListener('click', () => {
-            try {
-                console.log("Натиснуто кнопку 'Назад' на екрані завдань.");
-                if (tasksScreenElement) {
-                    tasksScreenElement.style.display = 'none';
-                    initializeGame();
-                }
-            } catch (error) {
-                console.error("Помилка в обробнику кнопки 'Назад' на екрані завдань:", error);
-            }
-        });
-    }
-
-    if (subscribeTaskButtonElement) {
-        subscribeTaskButtonElement.addEventListener('click', () => {
-            try {
-                console.log("Натиснуто кнопку 'Підписатись'.");
-                if (!isSubscribeTaskCompleted) {
-                    openTelegramChannel('[https://t.me/mititcoin](https://t.me/mititcoin)');
-                    isSubscribeTaskCompleted = true;
-                    currentScore += 100000; // Додаємо 100к монет за підписку
-                    scoreDisplayElement.textContent = currentScore;
-                    saveGameState();
-                    updateTasksScreenUI();
-
-                    // Показуємо повідомлення про нагороду
-                    const rewardMessage = document.createElement('div');
-                    rewardMessage.className = 'reward-message';
-                    rewardMessage.textContent = '+100,000 монет!';
-                    document.body.appendChild(rewardMessage);
-
-                    // Видаляємо повідомлення після показу
-                    setTimeout(() => {
-                        rewardMessage.remove();
-                    }, 3000);
-
-                    console.log("Завдання на підписку виконано, додано 100000 монет");
-                }
-            } catch (error) {
-                console.error("Помилка в обробнику кнопки 'Підписатись':", error);
-            }
-        });
-    }
-
-    if (watchAdTaskButtonElement) {
-        watchAdTaskButtonElement.addEventListener('click', () => {
-            try {
-                console.log("Натиснуто кнопку 'Переглянути рекламу'.");
-                if (!isWatchAdTaskCompleted) {
-                    // Тут повинна бути логіка для показу реклами
-                    // Після успішного перегляду:
-                    isWatchAdTaskCompleted = true;
-                    currentScore += 50000;
-                    scoreDisplayElement.textContent = currentScore;
-                    saveGameState();
-                    updateTasksScreenUI();
-
-                    const rewardMessage = document.createElement('div');
-                    rewardMessage.className = 'reward-message';
-                    rewardMessage.textContent = '+50,000 монет!';
-                    document.body.appendChild(rewardMessage);
-                    setTimeout(() => rewardMessage.remove(), 3000);
-
-                    console.log("Завдання на перегляд реклами виконано, додано 50000 монет");
-                } else {
-                    console.log("Рекламу вже переглянуто.");
-                }
-            } catch (error) {
-                console.error("Помилка в обробнику кнопки 'Переглянути рекламу':", error);
-            }
-        });
-    }
-
-    if (inviteFriendTaskButtonElement) {
-        inviteFriendTaskButtonElement.addEventListener('click', () => {
-            try {
-                console.log("Натиснуто кнопку 'Запросити друга'.");
-                if (!isInviteFriendTaskCompleted) {
-                    // Тут повинна бути логіка для запрошення друга (наприклад, через webApp.openInvoice, якщо це підтримується)
-                    // Після успішного запрошення (це може бути складно відстежити):
-                    isInviteFriendTaskCompleted = true;
-                    currentScore += 200000;
-                    scoreDisplayElement.textContent = currentScore;
-                    saveGameState();
-                    updateTasksScreenUI();
-
-                    const rewardMessage = document.createElement('div');
-                    rewardMessage.className = 'reward-message';
-                    rewardMessage.textContent = '+200,000 монет!';
-                    document.body.appendChild(rewardMessage);
-                    setTimeout(() => rewardMessage.remove(), 3000);
-
-                    console.log("Завдання на запрошення друга виконано, додано 200000 монет");
-                } else {
-                    console.log("Друга вже запрошено.");
-                }
-            } catch (error) {
-                console.error("Помилка в обробнику кнопки 'Запросити друга':", error);
-            }
-        });
-    }
-
     if (upgradeCoinButtonElement) {
         upgradeCoinButtonElement.addEventListener('click', () => {
             try {
                 console.log("Натиснуто кнопку 'Покращити монетку'.");
-                if (currentScore >= coinUpgradeCost) {
-                    currentScore -= coinUpgradeCost;
+                if (currentScore >= upgradeCost) {
+                    currentScore -= upgradeCost;
                     currentCoinLevel++;
-                    coinUpgradeCost = calculateUpgradeCost(currentCoinLevel);
                     tapValue = baseTapValue * currentCoinLevel;
                     updateUpgradeScreenUI();
                     saveGameState();
@@ -525,10 +350,9 @@ document.addEventListener('DOMContentLoaded', () => {
         upgradeEnergyButtonElement.addEventListener('click', () => {
             try {
                 console.log("Натиснуто кнопку 'Покращити енергію'.");
-                if (currentScore >= energyUpgradeCost) {
-                    currentScore -= energyUpgradeCost;
+                if (currentScore >= upgradeCost) {
+                    currentScore -= upgradeCost;
                     currentEnergyLevelLevel++;
-                    energyUpgradeCost = calculateUpgradeCost(currentEnergyLevelLevel);
                     maximumEnergy = 1000 + (currentEnergyLevelLevel - 1) * 100;
                     energyRegenerationRate = 0.5 + (currentEnergyLevelLevel - 1) * 0.1;
                     updateEnergyDisplayUI();
@@ -543,37 +367,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (coinElement) {
-        coinElement.addEventListener('touchstart', (event) => {
-            if (!isGameActive || currentEnergyLevel <= 0) {
-                return;
-            }
-            activeTouchCount = event.touches.length;
-        });
-
         coinElement.addEventListener('click', (event) => {
             try {
                 if (!isGameActive || currentEnergyLevel <= 0) {
                     return;
                 }
 
-                currentEnergyLevel -= activeTouchCount; // Витрачаємо енергію за кожен дотик
+                currentEnergyLevel--;
                 updateEnergyDisplayUI();
 
                 const rect = coinElement.getBoundingClientRect();
                 const clickX = event.clientX;
                 const clickY = event.clientY;
 
-                for (let i = 0; i < activeTouchCount; i++) {
-                    spawnParticles(clickX, clickY);
-                    showScoreSplash(clickX, clickY - 20, currentCombo * tapValue);
-                }
+                spawnParticles(clickX, clickY);
+                showScoreSplash(clickX, clickY - 20, currentCombo * tapValue);
 
                 updateComboCounter();
-                currentScore += currentCombo * tapValue * activeTouchCount; // Отримуємо монети за кожен дотик
+                currentScore += currentCombo * tapValue;
                 scoreDisplayElement.textContent = currentScore;
                 localStorage.setItem('tapka_score', currentScore.toString());
             } catch (error) {
-                console.error("Помилка в обробнику кліку/дотику по монетці:", error);
+                console.error("Помилка в обробнику кліку по монетці:", error);
             }
         });
     }
@@ -608,9 +423,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.removeItem('currentEnergyLevel');
                 localStorage.removeItem('energyRegenerationRate');
                 localStorage.removeItem('lastEnergyUpdateTimestamp');
-                localStorage.removeItem('isSubscribeTaskCompleted');
-                localStorage.removeItem('isWatchAdTaskCompleted');
-                localStorage.removeItem('isInviteFriendTaskCompleted');
                 endScreenElement.style.display = 'none';
                 initializeGame();
             } catch (error) {
@@ -666,9 +478,6 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('maximumEnergy', maximumEnergy.toString());
         localStorage.setItem('currentEnergyLevel', currentEnergyLevel.toString());
         localStorage.setItem('energyRegenerationRate', energyRegenerationRate.toString());
-        localStorage.setItem('isSubscribeTaskCompleted', isSubscribeTaskCompleted.toString());
-        localStorage.setItem('isWatchAdTaskCompleted', isWatchAdTaskCompleted.toString());
-        localStorage.setItem('isInviteFriendTaskCompleted', isInviteFriendTaskCompleted.toString());
         console.log("Стан гри збережено перед виходом.");
     });
 });
