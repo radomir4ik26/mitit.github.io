@@ -56,7 +56,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Змінні прокачки
     let currentCoinLevel = parseInt(localStorage.getItem('currentCoinLevel')) || 1;
     let currentEnergyLevelLevel = parseInt(localStorage.getItem('currentEnergyLevelLevel')) || 1;
-    const upgradeCost = 1000; // Вартість одного рівня прокачки
+    
+    // Формула для розрахунку вартості прокачки
+    function calculateUpgradeCost(level) {
+        // Базова вартість 1000, кожен наступний рівень на 30% дорожче
+        return Math.floor(1000 * Math.pow(1.3, level - 1));
+    }
 
     // Вплив рівнів на гру
     const baseTapValue = 1;
@@ -218,10 +223,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 upgradePointsDisplayElement.textContent = currentScore; // Показуємо поточні монети
                 coinLevelDisplayElement.textContent = currentCoinLevel;
                 energyLevelDisplayElement.textContent = currentEnergyLevelLevel;
-                upgradeCoinCostElement.textContent = upgradeCost;
-                upgradeEnergyCostElement.textContent = upgradeCost;
-                upgradeCoinButtonElement.disabled = currentScore < upgradeCost;
-                upgradeEnergyButtonElement.disabled = currentScore < upgradeCost;
+                
+                // Розраховуємо вартість прокачки для монети і енергії
+                const coinUpgradeCost = calculateUpgradeCost(currentCoinLevel);
+                const energyUpgradeCost = calculateUpgradeCost(currentEnergyLevelLevel);
+                
+                upgradeCoinCostElement.textContent = coinUpgradeCost;
+                upgradeEnergyCostElement.textContent = energyUpgradeCost;
+                
+                // Вимикаємо кнопки, якщо недостатньо коштів
+                upgradeCoinButtonElement.disabled = currentScore < coinUpgradeCost;
+                upgradeEnergyButtonElement.disabled = currentScore < energyUpgradeCost;
             }
         } catch (error) {
             console.error("Помилка при оновленні UI екрану прокачки:", error);
@@ -332,8 +344,9 @@ document.addEventListener('DOMContentLoaded', () => {
         upgradeCoinButtonElement.addEventListener('click', () => {
             try {
                 console.log("Натиснуто кнопку 'Покращити монетку'.");
-                if (currentScore >= upgradeCost) {
-                    currentScore -= upgradeCost;
+                const coinUpgradeCost = calculateUpgradeCost(currentCoinLevel);
+                if (currentScore >= coinUpgradeCost) {
+                    currentScore -= coinUpgradeCost;
                     currentCoinLevel++;
                     tapValue = baseTapValue * currentCoinLevel;
                     updateUpgradeScreenUI();
@@ -350,8 +363,9 @@ document.addEventListener('DOMContentLoaded', () => {
         upgradeEnergyButtonElement.addEventListener('click', () => {
             try {
                 console.log("Натиснуто кнопку 'Покращити енергію'.");
-                if (currentScore >= upgradeCost) {
-                    currentScore -= upgradeCost;
+                const energyUpgradeCost = calculateUpgradeCost(currentEnergyLevelLevel);
+                if (currentScore >= energyUpgradeCost) {
+                    currentScore -= energyUpgradeCost;
                     currentEnergyLevelLevel++;
                     maximumEnergy = 1000 + (currentEnergyLevelLevel - 1) * 100;
                     energyRegenerationRate = 0.5 + (currentEnergyLevelLevel - 1) * 0.1;
