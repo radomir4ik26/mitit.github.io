@@ -37,6 +37,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeUpgradeButtonElement = document.getElementById('close-upgrade-button');
     const upgradeCoinCostElement = document.getElementById('upgrade-coin-cost');
     const upgradeEnergyCostElement = document.getElementById('upgrade-energy-cost');
+    const tasksButtonElement = document.getElementById('tasksButton');
+    const tasksScreenElement = document.getElementById('tasksScreen');
+    const closeTasksButtonElement = document.getElementById('close-tasks-button');
+    const subscribeTgButtonElement = document.getElementById('subscribe-task-button');
+    const inviteFriendButtonElement = document.getElementById('invite-friend-button');
+    const dailyBonusButtonElement = document.getElementById('daily-bonus-button');
     console.log("DOM елементи отримано.");
 
     // Змінні гри
@@ -473,7 +479,144 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+if (tasksButtonElement) {
+        tasksButtonElement.addEventListener('click', () => {
+            try {
+                console.log("Натиснуто кнопку 'Завдання'.");
+                if (tasksScreenElement) {
+                    tasksScreenElement.style.display = 'flex';
+                    stopGamePlay();
+                    
+                    // Проверяем, выполнены ли задания
+                    const taskStatuses = JSON.parse(localStorage.getItem('task_statuses') || '{}');
+                    
+                    if (taskStatuses.subscribed) {
+                        subscribeTgButtonElement.textContent = 'Отримано';
+                        subscribeTgButtonElement.disabled = true;
+                    }
+                    
+                    if (taskStatuses.invited) {
+                        inviteFriendButtonElement.textContent = 'Отримано';
+                        inviteFriendButtonElement.disabled = true;
+                    }
+                    
+                    const lastDailyBonus = localStorage.getItem('last_daily_bonus');
+                    const today = new Date().toDateString();
+                    if (lastDailyBonus === today) {
+                        dailyBonusButtonElement.textContent = 'Отримано';
+                        dailyBonusButtonElement.disabled = true;
+                    } else {
+                        dailyBonusButtonElement.textContent = 'Отримати';
+                        dailyBonusButtonElement.disabled = false;
+                    }
+                }
+            } catch (error) {
+                console.error("Помилка в обробнику кнопки 'Завдання':", error);
+            }
+        });
+    }
 
+    if (closeTasksButtonElement) {
+        closeTasksButtonElement.addEventListener('click', () => {
+            try {
+                console.log("Натиснуто кнопку 'Назад' на екрані завдань.");
+                if (tasksScreenElement) {
+                    tasksScreenElement.style.display = 'none';
+                    initializeGame();
+                }
+            } catch (error) {
+                console.error("Помилка в обробнику кнопки 'Назад' на екрані завдань:", error);
+            }
+        });
+    }
+
+    if (subscribeTgButtonElement) {
+        subscribeTgButtonElement.addEventListener('click', () => {
+            try {
+                console.log("Натиснуто кнопку 'Підписатися на Telegram канал'.");
+                // Открываем ссылку на канал в Telegram
+                webApp.openLink('https://t.me/mitit_official');
+                
+                // Начисляем награду
+                currentScore += 100000;
+                scoreDisplayElement.textContent = currentScore;
+                localStorage.setItem('tapka_score', currentScore.toString());
+                
+                // Помечаем задание как выполненное
+                const taskStatuses = JSON.parse(localStorage.getItem('task_statuses') || '{}');
+                taskStatuses.subscribed = true;
+                localStorage.setItem('task_statuses', JSON.stringify(taskStatuses));
+                
+                // Обновляем интерфейс
+                subscribeTgButtonElement.textContent = 'Отримано';
+                subscribeTgButtonElement.disabled = true;
+                
+                // Показываем награду
+                alert('Вітаємо! Ви отримали 100,000 монет за підписку!');
+            } catch (error) {
+                console.error("Помилка в обробнику кнопки 'Підписатися':", error);
+            }
+        });
+    }
+
+    if (inviteFriendButtonElement) {
+        inviteFriendButtonElement.addEventListener('click', () => {
+            try {
+                console.log("Натиснуто кнопку 'Запросити друга'.");
+                // Создаем ссылку для приглашения
+                const shareUrl = 'https://t.me/share/url?url=https://t.me/MITITCoinBot&text=Приєднуйся до гри MITIT Coin та отримай бонусні монети!';
+                webApp.openLink(shareUrl);
+                
+                // Начисляем награду
+                currentScore += 50000;
+                scoreDisplayElement.textContent = currentScore;
+                localStorage.setItem('tapka_score', currentScore.toString());
+                
+                // Помечаем задание как выполненное
+                const taskStatuses = JSON.parse(localStorage.getItem('task_statuses') || '{}');
+                taskStatuses.invited = true;
+                localStorage.setItem('task_statuses', JSON.stringify(taskStatuses));
+                
+                // Обновляем интерфейс
+                inviteFriendButtonElement.textContent = 'Отримано';
+                inviteFriendButtonElement.disabled = true;
+                
+                // Показываем награду
+                alert('Вітаємо! Ви отримали 50,000 монет за запрошення друга!');
+            } catch (error) {
+                console.error("Помилка в обробнику кнопки 'Запросити друга':", error);
+            }
+        });
+    }
+
+    if (dailyBonusButtonElement) {
+        dailyBonusButtonElement.addEventListener('click', () => {
+            try {
+                console.log("Натиснуто кнопку 'Щоденний бонус'.");
+                const today = new Date().toDateString();
+                const lastDailyBonus = localStorage.getItem('last_daily_bonus');
+                
+                if (lastDailyBonus !== today) {
+                    // Начисляем награду
+                    currentScore += 10000;
+                    scoreDisplayElement.textContent = currentScore;
+                    localStorage.setItem('tapka_score', currentScore.toString());
+                    
+                    // Запоминаем дату получения бонуса
+                    localStorage.setItem('last_daily_bonus', today);
+                    
+                    // Обновляем интерфейс
+                    dailyBonusButtonElement.textContent = 'Отримано';
+                    dailyBonusButtonElement.disabled = true;
+                    
+                    // Показываем награду
+                    alert('Вітаємо! Ви отримали 10,000 монет щоденного бонусу!');
+                }
+            } catch (error) {
+                console.error("Помилка в обробнику кнопки 'Щоденний бонус':", error);
+            }
+        });
+    }
     document.addEventListener('touchmove', (e) => {
         if (e.touches.length > 1) {
             e.preventDefault();
