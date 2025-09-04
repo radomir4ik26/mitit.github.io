@@ -535,7 +535,7 @@ if (tasksButtonElement) {
             try {
                 console.log("Натиснуто кнопку 'Підписатися на Telegram канал'.");
                 // Открываем ссылку на канал в Telegram
-                webApp.openLink('https://t.me/mitit_official');
+                webApp.openLink('https://t.me/tapkaradomir4ik');
                 
                 // Начисляем награду
                 currentScore += 100000;
@@ -564,7 +564,7 @@ if (tasksButtonElement) {
             try {
                 console.log("Натиснуто кнопку 'Запросити друга'.");
                 // Создаем ссылку для приглашения
-                const shareUrl = 'https://t.me/share/url?url=https://t.me/MITITCoinBot&text=Приєднуйся до гри MITIT Coin та отримай бонусні монети!';
+                const shareUrl = 'https://t.me/share/url?url=https://t.me/MITITCoinBot&text=Приєднуйся до гри Radomyr4ik Coin та отримай бонусні монети!';
                 webApp.openLink(shareUrl);
                 
                 // Начисляем награду
@@ -638,3 +638,4 @@ if (tasksButtonElement) {
         console.log("Стан гри збережено перед виходом.");
     });
 });
+
