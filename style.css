@@ -2,142 +2,126 @@
 body, html {
     margin: 0;
     padding: 0;
-    height: 100vh; /* Займає всю висоту вікна */
-    overflow: hidden; /* Забороняє прокрутку */
-    user-select: none; /* Забороняє виділення тексту */
-    touch-action: none; /* Забороняє стандартні жести touch-дії */
+    height: 100vh;
+    overflow: hidden;
+    user-select: none;
+    touch-action: none;
     font-family: 'Roboto', sans-serif;
-    background: linear-gradient(180deg, #15141B 0%, #29283A 100%); /* Градієнтний фон */
-    color: white; /* Білий колір тексту за замовчуванням */
+    background: linear-gradient(180deg, #15141B 0%, #29283A 100%);
+    color: white;
 }
 
-/* Контейнер для всього вмісту */
 .container {
     display: flex;
-    flex-direction: column; /* Елементи розташовуються вертикально */
-    justify-content: space-between; /* Розподіляє простір між елементами по вертикалі */
-    align-items: center; /* Вирівнює елементи по центру горизонтально */
-    height: 100%; /* Займає всю висоту батьківського елемента */
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
     padding: 20px;
-    box-sizing: border-box; /* Враховує padding та border у загальній ширині/висоті */
+    box-sizing: border-box;
 }
 
-/* Шапка гри (рахунок, енергія) */
 .header {
     display: flex;
-    justify-content: space-between; /* Розподіляє простір між елементами по горизонталі */
-    align-items: center; /* Вирівнює елементи по центру вертикально */
+    justify-content: space-between;
+    align-items: center;
     width: 100%;
     padding: 15px 0;
 }
 
-/* Відображення рахунку */
 .score {
     font-size: 24px;
     font-weight: bold;
-    background: rgba(255, 255, 255, 0.1); /* Напівпрозорий білий фон */
+    background: rgba(255, 255, 255, 0.1);
     padding: 8px 16px;
     border-radius: 20px;
     display: flex;
     align-items: center;
 }
 
-/* Іконка рахунку (золота монетка) */
 .score-icon {
     width: 20px;
     height: 20px;
-    background: linear-gradient(45deg, #FFD700, #FFA500); /* Золотий градієнт */
+    background: linear-gradient(45deg, #FFD700, #FFA500);
     border-radius: 50%;
     margin-right: 8px;
 }
 
-/* Відображення енергії */
 .energy-display {
     font-size: 16px;
 }
 
-/* Основна ігрова зона (монетка, частинки) */
 .main-area {
-    flex: 1; /* Займає весь доступний вертикальний простір */
-    display: flex;
-    justify-content: center; /* Вирівнює по центру горизонтально */
-    align-items: center; /* Вирівнює по центру вертикально */
-    width: 100%;
-    position: relative; /* Для абсолютно позиціонованих елементів всередині */
-}
-
-/* Монетка */
-.coin {
-    width: 150px;
-    height: 150px;
-    background: linear-gradient(45deg, #FFD700, #FFA500); /* Золотий градієнт */
-    border-radius: 50%;
-    box-shadow: 0 0 30px rgba(255, 215, 0, 0.5); /* Тінь монетки */
+    flex: 1;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 24px;
-    font-weight: bold;
-    color: white;
-    cursor: pointer; /* Вказівник при наведенні */
-    transition: transform 0.1s; /* Плавна анімація при натисканні */
+    width: 100%;
     position: relative;
-    overflow: hidden; /* Приховує елементи, що виходять за межі */
 }
 
-/* Відблиск на монетці */
-.coin::before {
-    content: "";
-    position: absolute;
-    top: 5px;
-    left: 15px;
-    width: 30px;
-    height: 15px;
-    background: rgba(255, 255, 255, 0.6); /* Білий напівпрозорий колір */
+/* Монетка — тепер без тексту, з логотипом */
+.coin {
+    width: 170px;
+    height: 170px;
+    background: linear-gradient(45deg, #FFD700, #FFA500);
     border-radius: 50%;
-    transform: rotate(30deg);
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.1s;
+    position: relative;
+    overflow: hidden;
 }
 
-/* Анімація натискання на монетку */
+/* Логотип всередині монетки */
+.coin-logo {
+    width: 85%;
+    height: 85%;
+    object-fit: contain;
+    border-radius: 50%;
+    pointer-events: none;
+    display: block;
+}
+
+/* Анімація натискання */
 .coin:active {
-    transform: scale(0.95); /* Зменшення розміру при натисканні */
+    transform: scale(0.95);
 }
 
-/* Відображення отриманих очок при кліку */
 .coin-splash {
     position: absolute;
     font-size: 20px;
     font-weight: bold;
     color: white;
-    opacity: 0; /* Початкова прозорість */
-    animation: splash 0.8s ease-out; /* Анімація появи та зникнення */
-    pointer-events: none; /* Елемент не приймає події миші */
+    opacity: 0;
+    animation: splash 0.8s ease-out;
+    pointer-events: none;
 }
 
-/* Анімація "сплеску" очок */
 @keyframes splash {
     0% {
         transform: translateY(0);
-        opacity: 1; /* Повна видимість на початку */
+        opacity: 1;
     }
     100% {
-        transform: translateY(-100px); /* Переміщення вгору */
-        opacity: 0; /* Повна прозорість в кінці */
+        transform: translateY(-100px);
+        opacity: 0;
     }
 }
 
-/* Підвал гри (кнопки) */
 .footer {
     width: 100%;
     padding: 15px 0;
     display: flex;
-    justify-content: space-around; /* Рівномірний розподіл кнопок */
+    justify-content: space-around;
     align-items: center;
 }
 
-/* Стилі для нижніх кнопок */
 .bottom-button {
-    background: rgba(255, 255, 255, 0.1); /* Напівпрозорий білий фон */
+    background: rgba(255, 255, 255, 0.1);
     padding: 10px 20px;
     border-radius: 20px;
     font-size: 14px;
@@ -145,49 +129,45 @@ body, html {
     color: white;
     border: none;
     cursor: pointer;
-    transition: background 0.3s; /* Плавна зміна фону при наведенні */
-    outline: none; /* Прибирає обведення при фокусі */
+    transition: background 0.3s;
+    outline: none;
 }
 
-/* Зміна фону кнопок при наведенні */
 .bottom-button:hover {
     background: rgba(255, 255, 255, 0.2);
 }
 
-/* Лічильник комбо */
 .combo-counter {
     position: absolute;
     top: 30%;
     left: 50%;
-    transform: translateX(-50%); /* Центрування */
+    transform: translateX(-50%);
     font-size: 16px;
     font-weight: bold;
     color: rgba(255, 255, 255, 0.8);
-    background: rgba(0, 0, 0, 0.5); /* Напівпрозорий чорний фон */
+    background: rgba(0, 0, 0, 0.5);
     padding: 5px 15px;
     border-radius: 15px;
-    display: none; /* Прихований за замовчуванням */
+    display: none;
 }
 
-/* Екран завершення гри */
 .end-screen {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.8); /* Темний напівпрозорий фон */
+    background: rgba(0, 0, 0, 0.8);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    z-index: 10; /* Відображається поверх інших елементів */
-    display: none; /* Прихований за замовчуванням */
+    z-index: 10;
+    display: none;
 }
 
-/* Контент екрану завершення гри */
 .end-screen-content {
-    background: #1D1C25; /* Темний фон контенту */
+    background: #1D1C25;
     padding: 30px;
     border-radius: 20px;
     text-align: center;
@@ -206,7 +186,7 @@ body, html {
 }
 
 .end-screen button {
-    background: linear-gradient(45deg, #FFD700, #FFA500); /* Золотий градієнт */
+    background: linear-gradient(45deg, #FFD700, #FFA500);
     color: white;
     padding: 10px 20px;
     border: none;
@@ -218,20 +198,19 @@ body, html {
     width: 100%;
 }
 
-/* Екран прокачки */
 .upgrade-screen {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.8); /* Темний напівпрозорий фон */
+    background: rgba(0, 0, 0, 0.8);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    z-index: 11; /* Відображається поверх екрану завершення */
-    display: none; /* Прихований за замовчуванням */
+    z-index: 11;
+    display: none;
     padding: 20px;
     box-sizing: border-box;
 }
@@ -263,7 +242,7 @@ body, html {
 }
 
 .upgrade-item button {
-    background: linear-gradient(45deg, #008000, #00FF00); /* Зелений градієнт для прокачки */
+    background: linear-gradient(45deg, #008000, #00FF00);
     color: white;
     padding: 8px 15px;
     border: none;
@@ -287,21 +266,20 @@ body, html {
     margin-top: 20px;
 }
 
-/* Екран рейтингу */
 .leaderboard-screen {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.8); /* Темний напівпрозорий фон */
+    background: rgba(0, 0, 0, 0.8);
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 20px;
     box-sizing: border-box;
-    z-index: 12; /* Відображається поверх екрану прокачки */
-    display: none; /* Прихований за замовчуванням */
+    z-index: 12;
+    display: none;
 }
 
 .leaderboard-screen h2 {
@@ -329,25 +307,22 @@ body, html {
     margin-top: 20px;
 }
 
-/* Контейнер для частинок */
 .particles {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    pointer-events: none; /* Частинки не повинні перехоплювати кліки */
+    pointer-events: none;
 }
 
-/* Стилі для окремої частинки */
 .particle {
     position: absolute;
-    background: rgba(255, 215, 0, 0.7); /* Золотистий колір частинок */
+    background: rgba(255, 215, 0, 0.7);
     border-radius: 50%;
     pointer-events: none;
 }
 
-/* Анімація для частинок */
 @keyframes particle {
     0% {
         opacity: 1;
@@ -359,14 +334,12 @@ body, html {
     }
 }
 
-/* Клас для вимкненої монетки (коли немає енергії) */
 .coin.disabled {
     opacity: 0.5;
     cursor: not-allowed;
     pointer-events: none;
 }
 
-/* Новий дизайн екрану завдань */
 .tasks-screen {
     position: absolute;
     top: 0;
@@ -410,20 +383,18 @@ body, html {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
-.task-info {
-    margin-bottom: 15px;
-}
-
-.task-info h3 {
+.task-title {
     font-size: 18px;
-    margin: 0 0 10px 0;
+    font-weight: bold;
     color: #FFD700;
+    margin-bottom: 8px;
+    display: block;
 }
 
-.task-info p {
+.task-description {
     font-size: 14px;
     color: rgba(255, 255, 255, 0.8);
-    margin: 0;
+    margin: 0 0 12px 0;
 }
 
 .task-button {
@@ -452,7 +423,6 @@ body, html {
     cursor: not-allowed;
 }
 
-/* Анімація підсвітки для нових завдань */
 @keyframes pulse {
     0% {
         box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7);
@@ -469,17 +439,15 @@ body, html {
     animation: pulse 1.5s infinite;
 }
 
-/* Стилі для виконаних завдань */
 .task-item.completed .task-button {
     background: #4CAF50;
 }
 
-.task-item.completed .task-info h3::after {
+.task-item.completed .task-title::after {
     content: " ✓";
     color: #4CAF50;
 }
 
-/* Покращені стилі кнопки "Завдання" для привертання уваги */
 #tasksButton {
     position: relative;
     background: linear-gradient(45deg, #FFA500, #FFD700);
@@ -492,7 +460,6 @@ body, html {
     background: linear-gradient(45deg, #FFD700, #FFA500);
 }
 
-/* Toast повідомлення про нагороду */
 .reward-toast {
     position: fixed;
     top: 20px;
